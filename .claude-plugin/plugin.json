@@ -1,0 +1,7 @@
+{
+  "name": "dtz",
+  "version": "1.0.0",
+  "description": "Model routing and parallel execution for bkit workflow",
+  "skills": "./skills/",
+  "agents": "./agents/"
+}
