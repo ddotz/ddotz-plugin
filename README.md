@@ -1,59 +1,44 @@
 # DTZ Plugin
 
-Model routing and parallel execution for Claude Code.
+Session handoff for seamless continuation in Claude Code.
 
 ## Features
 
-### Skills
+### /dtz:handoff
 
-- **`/dtz:max`** - Maximum performance mode with parallel agent orchestration
-- **`/dtz:eco`** - Token-efficient parallel execution using Haiku/Sonnet agents
-- **`/dtz:handoff`** - Save and restore session context for seamless continuation
+Save and restore session context for seamless continuation between sessions.
 
-### Agents (10 tiered)
-
-| Tier | Model | Agents |
-|------|-------|--------|
-| LOW | Haiku | architect-low, executor-low, designer-low, explore |
-| MEDIUM | Sonnet | architect-medium, executor, designer, explore-medium |
-| HIGH | Opus | executor-high |
+| Command | Description |
+|---------|-------------|
+| `/dtz:handoff` | Save current session state |
+| `/dtz:handoff save [name]` | Save with custom name |
+| `/dtz:handoff load [id]` | Load specific handoff |
+| `/dtz:handoff list` | List saved handoffs |
+| `/dtz:handoff clear` | Clear handoff history |
 
 ## Installation
 
+Add `ddotz` marketplace in Claude Code:
+
 ```bash
-# Clone to Claude plugins directory
-git clone <repo-url> ~/.claude/plugins/ddotz-plugin
-```
-
-## Usage
-
-### Max Mode
-```
-/dtz:max
-```
-or just say "max로 실행해줘"
-
-### Eco Mode
-```
-/dtz:eco
-```
-or just say "eco 모드로"
-
-### Handoff
-```
-# Save session
-/dtz:handoff
-
-# Load session
-/dtz:handoff load
-
-# List handoffs
-/dtz:handoff list
+/plugin:marketplace add ddotz https://github.com/ddotz/ddotz-plugin
+/plugin:install dtz@ddotz
 ```
 
 ## Auto-Load on Session Start
 
-New sessions automatically detect and load previous handoff.
+New sessions automatically detect `.dtz/handoffs/latest.md` and display summary.
+
+Use `/dtz:handoff load` to restore context and tasks.
+
+## Handoff Document
+
+Saved handoffs include:
+- Context Summary
+- Completed/Pending Tasks
+- Key Decisions
+- Important Files
+- Next Steps
 
 ## Configuration
 
@@ -68,9 +53,25 @@ Create `.dtz/config.json` in your project:
 }
 ```
 
+| Option | Default | Description |
+|--------|---------|-------------|
+| `maxHistory` | 10 | Max handoffs to keep |
+| `autoLoad` | true | Auto-detect on session start |
+
 ## Version
 
-1.0.0
+2.0.0
+
+## Changelog
+
+### v2.0.0
+- Removed max/eco modes
+- Focus on handoff functionality only
+- Added SessionStart hook for auto-detection
+- Simplified plugin structure
+
+### v1.0.1
+- Initial marketplace release
 
 ## License
 

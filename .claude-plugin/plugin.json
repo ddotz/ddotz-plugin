@@ -1,7 +1,7 @@
 {
   "name": "dtz",
-  "version": "1.0.1",
-  "description": "Model routing and parallel execution with max/eco modes and session handoff",
+  "version": "2.0.0",
+  "description": "Session handoff for seamless continuation",
   "skills": "./skills/",
-  "agents": "./agents/"
+  "hooks": "./hooks/"
 }

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-hooks.json",
+  "description": "DTZ Handoff Plugin v2.0.0",
+  "hooks": {
+    "SessionStart": [
+      {
+        "once": true,
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/session-start.js",
+            "timeout": 5000
+          }
+        ]
+      }
+    ]
+  }
+}
