@@ -75,29 +75,31 @@ async function main() {
       return;
     }
 
-    // 요약 출력
+    // 자동 로드 - 전체 내용 포함
     let output = `<system-reminder>
-[DTZ Handoff] 이전 세션 발견
+[DTZ Handoff] 이전 세션 자동 로드
 
 Session: ${handoff.sessionId}
 생성: ${handoff.created || 'Unknown'}
 
+## Context
 ${handoff.contextSummary || '(요약 없음)'}
 
 `;
 
     if (handoff.pendingTasks.length > 0) {
-      output += `미완료 작업: ${handoff.pendingTasks.length}개\n`;
-      handoff.pendingTasks.slice(0, 5).forEach((task, i) => {
-        output += `  ${i + 1}. ${task}\n`;
+      output += `## Pending Tasks\n`;
+      handoff.pendingTasks.forEach((task, i) => {
+        output += `${i + 1}. ${task}\n`;
       });
-      if (handoff.pendingTasks.length > 5) {
-        output += `  ... 외 ${handoff.pendingTasks.length - 5}개\n`;
-      }
+      output += `
+**ACTION REQUIRED**: 위 Pending Tasks를 TaskCreate 도구로 TODO 항목으로 생성하세요.
+`;
     }
 
     output += `
-\`/dtz:handoff load\`로 작업을 복원할 수 있습니다.
+---
+Handoff 파일: ${handoffPath}
 </system-reminder>`;
 
     console.log(output);

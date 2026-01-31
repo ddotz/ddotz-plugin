@@ -1,6 +1,6 @@
 {
   "name": "dtz",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Session handoff for seamless continuation",
   "skills": "./skills/"
 }
