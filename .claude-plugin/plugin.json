@@ -1,6 +1,6 @@
 {
   "name": "dtz",
-  "version": "2.0.4",
-  "description": "Session handoff for seamless continuation",
+  "version": "2.1.0",
+  "description": "Session handoff and HUD configuration for Claude Code",
   "skills": "./skills/"
 }
