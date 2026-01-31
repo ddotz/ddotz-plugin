@@ -75,9 +75,8 @@ async function main() {
       return;
     }
 
-    // 자동 로드 - 전체 내용 포함
-    let output = `<system-reminder>
-[DTZ Handoff] 이전 세션 자동 로드
+    // additionalContext: Claude에게 전달되는 상세 컨텍스트
+    let additionalContext = `[DTZ Handoff] 이전 세션 자동 로드
 
 Session: ${handoff.sessionId}
 생성: ${handoff.created || 'Unknown'}
@@ -88,21 +87,29 @@ ${handoff.contextSummary || '(요약 없음)'}
 `;
 
     if (handoff.pendingTasks.length > 0) {
-      output += `## Pending Tasks\n`;
+      additionalContext += `## Pending Tasks\n`;
       handoff.pendingTasks.forEach((task, i) => {
-        output += `${i + 1}. ${task}\n`;
+        additionalContext += `${i + 1}. ${task}\n`;
       });
-      output += `
+      additionalContext += `
 **ACTION REQUIRED**: 위 Pending Tasks를 TaskCreate 도구로 TODO 항목으로 생성하세요.
 `;
     }
 
-    output += `
----
-Handoff 파일: ${handoffPath}
-</system-reminder>`;
+    additionalContext += `---
+Handoff 파일: ${handoffPath}`;
 
-    console.log(output);
+    // systemMessage: 사용자에게 CLI에 표시되는 메시지
+    let systemMessage = `📋 이전 세션 발견: ${handoff.sessionId}`;
+    if (handoff.pendingTasks.length > 0) {
+      systemMessage += ` (미완료 작업 ${handoff.pendingTasks.length}개)`;
+    }
+
+    // JSON 형식으로 출력 (additionalContext + systemMessage)
+    console.log(JSON.stringify({
+      additionalContext,
+      systemMessage
+    }));
 
   } catch (error) {
     // 에러 발생 시 무시 (세션 시작 방해하지 않음)
