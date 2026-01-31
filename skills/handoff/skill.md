@@ -25,23 +25,36 @@ triggers:
 
 ## Save Procedure
 
-1. **정보 수집**
+### ⚠️ CRITICAL: Timestamp Rules
+
+> **NEVER guess or fabricate timestamps. ALWAYS execute Bash commands first.**
+
+1. **[MANDATORY FIRST STEP] 시스템 시간 조회**
+
+   **문서 작성 전에 반드시 아래 Bash 명령을 실행하세요:**
+
+   ```bash
+   # 1. 현재 시스템 시간 가져오기 (이 값을 Created 필드에 사용)
+   date "+%Y-%m-%d %H:%M:%S"
+
+   # 2. Session ID 생성 (이 값을 Session ID에 사용)
+   echo "$(date +%Y-%m-%d)_$(openssl rand -hex 3)"
+   ```
+
+   **규칙:**
+   - ❌ 절대 timestamp를 추정하거나 임의로 작성하지 마세요
+   - ❌ "현재 시간이 대략..." 같은 가정 금지
+   - ✅ 반드시 `date` 명령 실행 결과를 그대로 복사해서 사용
+   - ✅ Bash 실행 → 결과 확인 → 그 값을 문서에 복사
+
+2. **정보 수집**
    - TaskList로 현재 TODO 수집
    - 대화에서 주요 결정사항 추출
    - 최근 작업 파일 목록 정리
 
-2. **시스템 시간 및 Session ID 생성**
-   - **반드시** Bash로 시스템 시간을 가져와야 함 (임의 추정 금지):
-     ```bash
-     date "+%Y-%m-%d %H:%M:%S"
-     ```
-   - Session ID 생성:
-     ```bash
-     echo $(date +%Y-%m-%d)_$(openssl rand -hex 3)
-     ```
-
 3. **문서 생성**
-   - 위에서 가져온 실제 시스템 시간을 `Created` 필드에 사용
+   - Step 1에서 가져온 **정확한 시스템 시간**을 `Created` 필드에 사용
+   - Step 1에서 생성한 **정확한 Session ID**를 사용
    - 표준 템플릿으로 구성
 
 4. **저장**
@@ -64,14 +77,16 @@ triggers:
 
 ## Handoff Document Template
 
+> ⚠️ `{실제_시스템_시간}`, `{실제_session_id}` 자리에는 **반드시 Bash 명령 실행 결과**를 복사해서 붙여넣으세요.
+
 ```markdown
 # Session Handoff
 
 ## Meta
 | Key | Value |
 |-----|-------|
-| Session ID | `{session-id}` |
-| Created | `{timestamp}` |
+| Session ID | `{실제_session_id}` |
+| Created | `{실제_시스템_시간}` |
 | Project | `{directory name}` |
 
 ## Context Summary
