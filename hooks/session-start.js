@@ -22,7 +22,8 @@ function parseHandoff(content) {
     sessionId: null,
     created: null,
     contextSummary: null,
-    pendingTasks: []
+    pendingTasks: [],
+    nextSteps: []
   };
 
   // Session ID 추출
@@ -42,6 +43,13 @@ function parseHandoff(content) {
   if (pendingMatch) {
     const tasks = pendingMatch[1].match(/- \[ \] .+/g);
     if (tasks) result.pendingTasks = tasks.map(t => t.replace('- [ ] ', ''));
+  }
+
+  // Next Steps 추출
+  const nextStepsMatch = content.match(/## Next Steps\n([\s\S]*?)(?=\n##|---|\n\*Generated|$)/);
+  if (nextStepsMatch) {
+    const steps = nextStepsMatch[1].match(/\d+\.\s+.+/g);
+    if (steps) result.nextSteps = steps.map(s => s.replace(/^\d+\.\s+/, ''));
   }
 
   return result;
@@ -99,11 +107,41 @@ ${handoff.contextSummary || '(요약 없음)'}
     additionalContext += `---
 Handoff 파일: ${handoffPath}`;
 
-    // systemMessage: 사용자에게 CLI에 표시되는 메시지
-    let systemMessage = `📋 이전 세션 발견: ${handoff.sessionId}`;
+    // systemMessage: 사용자에게 CLI에 표시되는 메시지 (상세 버전)
+    let systemMessage = `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 이전 세션 발견: ${handoff.sessionId}
+   생성: ${handoff.created || 'Unknown'}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 Context Summary:
+${handoff.contextSummary || '(요약 없음)'}
+`;
+
     if (handoff.pendingTasks.length > 0) {
-      systemMessage += ` (미완료 작업 ${handoff.pendingTasks.length}개)`;
+      systemMessage += `
+⏳ Pending Tasks (${handoff.pendingTasks.length}개):`;
+      handoff.pendingTasks.forEach((task, i) => {
+        systemMessage += `
+   ${i + 1}. ${task}`;
+      });
     }
+
+    if (handoff.nextSteps.length > 0) {
+      systemMessage += `
+
+🚀 Next Steps:`;
+      handoff.nextSteps.forEach((step, i) => {
+        systemMessage += `
+   ${i + 1}. ${step}`;
+      });
+    }
+
+    systemMessage += `
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 "/dtz:handoff load" 입력하면 TODO가 자동 복원됩니다.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`
 
     // JSON 형식으로 출력 (additionalContext + systemMessage)
     console.log(JSON.stringify({
