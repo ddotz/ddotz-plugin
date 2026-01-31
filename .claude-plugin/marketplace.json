@@ -9,7 +9,7 @@
     {
       "name": "dtz",
       "description": "Model routing and parallel execution with max/eco modes and session handoff for efficient agent orchestration",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "ddotz"
       },

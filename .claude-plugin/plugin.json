@@ -1,20 +1,7 @@
 {
   "name": "dtz",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Model routing and parallel execution with max/eco modes and session handoff",
-  "author": {
-    "name": "ddotz"
-  },
-  "repository": "https://github.com/ddotz/ddotz-plugin",
-  "license": "MIT",
-  "keywords": [
-    "model-routing",
-    "parallel-execution",
-    "handoff",
-    "session-management",
-    "agent-orchestration"
-  ],
   "skills": "./skills/",
-  "agents": "./agents/",
-  "hooks": "./hooks/"
+  "agents": "./agents/"
 }
