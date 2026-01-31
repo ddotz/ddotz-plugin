@@ -185,11 +185,11 @@ rm -rf ~/.claude/hud/ddotz-hud
 설치 후 statusline 레이아웃:
 
 ```
-Opus 4.5 | ⎇ main (3) | ~/project
+Opus 4.5 | ⎇ main v1.2.0 | ~/project
   default | 5h:45% wk:23% | 58.4% | $2.34 | 1hr 26m | agents:2 | bg:1/5
 ```
 
-**Line 1**: 모델 | Git 브랜치 | 현재 디렉토리
+**Line 1**: 모델 | Git 브랜치 + 프로젝트 버전 | 현재 디렉토리
 **Line 2**: 프로필 | Rate Limit | Context % | 비용 | 시간 | 에이전트 | 백그라운드
 
 ---
