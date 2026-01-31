@@ -1,0 +1,45 @@
+{
+  "version": "2.0",
+  "lastUpdated": "2026-01-31T11:30:00.000Z",
+  "activeFeatures": ["dtz-features"],
+  "primaryFeature": "dtz-features",
+  "features": {
+    "dtz-features": {
+      "phase": "check",
+      "matchRate": 98,
+      "iteration": 1,
+      "createdAt": "2026-01-31T11:00:00.000Z",
+      "updatedAt": "2026-01-31T11:30:00.000Z",
+      "tasks": {
+        "plan": "completed",
+        "design": "completed",
+        "do": "completed",
+        "check": "completed",
+        "act": "pending"
+      }
+    }
+  },
+  "pipeline": {
+    "currentPhase": 4,
+    "level": "Dynamic",
+    "phaseHistory": [
+      { "phase": 1, "name": "Plan", "completedAt": "2026-01-31" },
+      { "phase": 2, "name": "Design", "completedAt": "2026-01-31" },
+      { "phase": 3, "name": "Do", "completedAt": "2026-01-31" },
+      { "phase": 4, "name": "Check", "completedAt": "2026-01-31" }
+    ]
+  },
+  "session": {
+    "startedAt": "2026-01-31T11:00:00.000Z",
+    "onboardingCompleted": true,
+    "lastActivity": "2026-01-31T11:30:00.000Z"
+  },
+  "history": [
+    {
+      "action": "analyze",
+      "feature": "dtz-features",
+      "timestamp": "2026-01-31T11:30:00.000Z",
+      "result": "Match Rate 98%"
+    }
+  ]
+}

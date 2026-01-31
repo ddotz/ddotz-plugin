@@ -26,8 +26,8 @@ Activates maximum performance mode with parallel agent orchestration.
 |--------|-------------|-----------------|-------------|
 | **Analysis** | `architect-low` | `architect-medium` | `architect` |
 | **Execution** | `executor-low` | `executor` | `executor-high` |
-| **Search** | `explore` | `explore-medium` | - |
-| **Frontend** | `designer-low` | `designer` | - |
+| **Search** | `explore` | `explore-medium` | `explore-high` |
+| **Frontend** | `designer-low` | `designer` | `designer-high` |
 
 ### Tier Selection
 

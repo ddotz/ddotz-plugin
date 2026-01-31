@@ -30,8 +30,8 @@ Token-efficient parallel execution for cost-conscious development.
 |--------|-------------------|-------------------|--------------|
 | **Analysis** | `architect-low` | `architect-medium` | ~~architect~~ |
 | **Execution** | `executor-low` | `executor` | ~~executor-high~~ |
-| **Search** | `explore` | `explore-medium` | - |
-| **Frontend** | `designer-low` | `designer` | - |
+| **Search** | `explore` | `explore-medium` | ~~explore-high~~ |
+| **Frontend** | `designer-low` | `designer` | ~~designer-high~~ |
 
 ## Examples
 

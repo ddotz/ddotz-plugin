@@ -95,7 +95,7 @@ DTZ 플러그인의 에이전트 티어:
 |------|-------|--------|
 | LOW | Haiku | architect-low, executor-low, designer-low, explore |
 | MEDIUM | Sonnet | architect-medium, executor, designer, explore-medium |
-| HIGH | Opus | executor-high |
+| HIGH | Opus | architect, executor-high, explore-high, designer-high |
 
 ---
 
