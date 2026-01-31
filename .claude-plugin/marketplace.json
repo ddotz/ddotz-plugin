@@ -1,0 +1,22 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "ddotz",
+  "description": "Model routing and parallel execution with max/eco modes and session handoff",
+  "owner": {
+    "name": "ddotz"
+  },
+  "plugins": [
+    {
+      "name": "dtz",
+      "description": "Model routing and parallel execution with max/eco modes and session handoff for efficient agent orchestration",
+      "version": "1.0.0",
+      "author": {
+        "name": "ddotz"
+      },
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://github.com/ddotz/ddotz-plugin",
+      "tags": ["model-routing", "parallel-execution", "handoff", "session-management", "agent-orchestration"]
+    }
+  ]
+}
