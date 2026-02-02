@@ -1,22 +1,22 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "ddotz",
-  "description": "Session handoff for seamless continuation",
+  "description": "Session management and development workflow tools for Claude Code",
   "owner": {
     "name": "ddotz"
   },
   "plugins": [
     {
       "name": "dtz",
-      "description": "Session handoff for seamless continuation - save and restore session context",
-      "version": "2.0.0",
+      "description": "Session handoff, HUD statusline, and PDCA-based development workflow",
+      "version": "2.3.0",
       "author": {
         "name": "ddotz"
       },
       "source": "./",
       "category": "productivity",
       "homepage": "https://github.com/ddotz/ddotz-plugin",
-      "tags": ["handoff", "session-management", "context-persistence"]
+      "tags": ["handoff", "session-management", "hud", "statusline", "pdca", "fsd", "workflow"]
     }
   ]
 }
