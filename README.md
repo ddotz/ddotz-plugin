@@ -65,9 +65,14 @@ Create `.dtz/config.json` in your project:
 
 ## Version
 
-2.0.0
+2.2.0
 
 ## Changelog
+
+### v2.2.0
+- Add handoff autoload toggle feature
+- New commands: `/dtz:handoff autoload on|off|status`
+- Configuration via `.dtz/config.json`
 
 ### v2.0.0
 - Removed max/eco modes

@@ -43,4 +43,4 @@ Claude Code statusline 설정 (ddotz-hud).
 4. **HUD 설정**: `/dtz:hud`로 향상된 statusline 설정
 
 ---
-*DTZ Plugin v2.1.0*
+*DTZ Plugin v2.2.0*
