@@ -15,6 +15,9 @@ Save and restore session context for seamless continuation between sessions.
 | `/dtz:handoff load [id]` | Load specific handoff |
 | `/dtz:handoff list` | List saved handoffs |
 | `/dtz:handoff clear` | Clear handoff history |
+| `/dtz:handoff autoload` | Check autoload status |
+| `/dtz:handoff autoload on` | Enable autoload |
+| `/dtz:handoff autoload off` | Disable autoload |
 
 ## Installation
 
@@ -47,16 +50,18 @@ Create `.dtz/config.json` in your project:
 ```json
 {
   "handoff": {
-    "maxHistory": 10,
-    "autoLoad": true
+    "autoload": true,
+    "maxHistory": 10
   }
 }
 ```
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `maxHistory` | 10 | Max handoffs to keep |
-| `autoLoad` | true | Auto-detect on session start |
+| `autoload` | `true` | Auto-load handoff on session start |
+| `maxHistory` | `10` | Max handoffs to keep |
+
+> 💡 To disable auto-load: `/dtz:handoff autoload off`
 
 ## Version
 

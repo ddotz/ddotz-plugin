@@ -7,6 +7,8 @@ DTZ (ddotz) 플러그인은 세션 관리 및 Claude Code 환경 설정을 위�
 매 세션 시작 시 자동으로 `.dtz/handoffs/latest.md` 파일을 확인합니다.
 파일이 있으면 이전 세션 정보를 요약하여 표시합니다.
 
+> 💡 자동 로드를 끄려면: `/dtz:handoff autoload off`
+
 ## Available Skills
 
 ### /dtz:handoff
@@ -18,6 +20,9 @@ DTZ (ddotz) 플러그인은 세션 관리 및 Claude Code 환경 설정을 위�
 | `/dtz:handoff load` | 최신 handoff 로드 |
 | `/dtz:handoff list` | 목록 보기 |
 | `/dtz:handoff clear` | 기록 정리 |
+| `/dtz:handoff autoload` | autoload 상태 확인 |
+| `/dtz:handoff autoload on` | 자동 로드 활성화 |
+| `/dtz:handoff autoload off` | 자동 로드 비활성화 |
 
 ### /dtz:hud
 Claude Code statusline 설정 (ddotz-hud).

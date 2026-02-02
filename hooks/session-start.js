@@ -7,6 +7,36 @@
 const fs = require('fs');
 const path = require('path');
 
+// Config 파일 로드
+function loadConfig(directory) {
+  const configPath = path.join(directory, '.dtz', 'config.json');
+  const defaultConfig = {
+    handoff: {
+      autoload: true,
+      maxHistory: 10
+    }
+  };
+
+  try {
+    if (!fs.existsSync(configPath)) {
+      return defaultConfig;
+    }
+    const content = fs.readFileSync(configPath, 'utf-8');
+    const config = JSON.parse(content);
+    // Deep merge with defaults
+    return {
+      ...defaultConfig,
+      handoff: {
+        ...defaultConfig.handoff,
+        ...(config.handoff || {})
+      }
+    };
+  } catch (error) {
+    // 파싱 오류 시 기본값 반환
+    return defaultConfig;
+  }
+}
+
 // stdin에서 JSON 읽기 (Claude Code 표준)
 async function readStdin() {
   const chunks = [];
@@ -63,6 +93,14 @@ async function main() {
     try { data = JSON.parse(input); } catch {}
 
     const directory = data.directory || process.cwd();
+
+    // Config 로드 및 autoload 확인
+    const config = loadConfig(directory);
+    if (!config.handoff.autoload) {
+      // autoload가 비활성화됨 - 아무것도 출력하지 않음
+      return;
+    }
+
     const handoffPath = path.join(directory, '.dtz', 'handoffs', 'latest.md');
 
     // Handoff 파일 확인

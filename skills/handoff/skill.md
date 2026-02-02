@@ -22,6 +22,9 @@ triggers:
 | `/dtz:handoff load [id]` | 특정 handoff 로드 |
 | `/dtz:handoff list` | 저장된 handoff 목록 |
 | `/dtz:handoff clear` | handoff 기록 정리 |
+| `/dtz:handoff autoload` | autoload 상태 확인 |
+| `/dtz:handoff autoload on` | autoload 활성화 |
+| `/dtz:handoff autoload off` | autoload 비활성화 |
 
 ## Save Procedure
 
@@ -171,7 +174,101 @@ triggers:
    - 모든 파일 삭제 시: latest.md도 삭제
    - 일부 보존 시: 가장 최근 파일로 latest.md 업데이트
 
+## Autoload Procedure
+
+세션 시작 시 자동 로드 기능을 설정합니다.
+
+### autoload (상태 확인)
+
+1. **Config 파일 읽기**
+   - `.dtz/config.json` 파일 확인
+   - 파일 없으면 기본값 `on` 사용
+
+2. **상태 출력**
+   ```
+   📋 Handoff Autoload 설정
+   ─────────────────────────────────
+   상태: ✅ 활성화 (on)
+   설정 파일: .dtz/config.json
+   ─────────────────────────────────
+
+   💡 변경하려면:
+      /dtz:handoff autoload off  - 비활성화
+      /dtz:handoff autoload on   - 활성화
+   ```
+
+### autoload on
+
+1. **Config 파일 확인/생성**
+   - `.dtz/config.json` 없으면 생성
+   - 있으면 읽기
+
+2. **설정 업데이트**
+   ```json
+   {
+     "handoff": {
+       "autoload": true
+     }
+   }
+   ```
+
+3. **파일 저장**
+   - `.dtz/config.json`에 저장
+
+4. **확인 메시지**
+   ```
+   ✅ Handoff autoload가 활성화되었습니다.
+   다음 세션부터 자동으로 이전 handoff를 로드합니다.
+   ```
+
+### autoload off
+
+1. **Config 파일 확인/생성**
+   - `.dtz/config.json` 없으면 생성
+   - 있으면 읽기
+
+2. **설정 업데이트**
+   ```json
+   {
+     "handoff": {
+       "autoload": false
+     }
+   }
+   ```
+
+3. **파일 저장**
+   - `.dtz/config.json`에 저장
+
+4. **확인 메시지**
+   ```
+   ⏸️ Handoff autoload가 비활성화되었습니다.
+   세션 시작 시 자동 로드가 수행되지 않습니다.
+   수동 로드: /dtz:handoff load
+   ```
+
 ## Auto-Load on Session Start
 
 새 세션 시작 시 자동으로 `.dtz/handoffs/latest.md` 감지.
-존재하면 요약 정보를 표시하고 `/dtz:handoff load` 안내.
+
+### 동작 조건
+
+| 조건 | 동작 |
+|------|------|
+| `autoload: true` (기본값) | latest.md 감지 시 요약 정보 표시 |
+| `autoload: false` | 자동 로드 건너뜀 (수동 로드만 가능) |
+| 설정 파일 없음 | `autoload: true`로 동작 (기본값) |
+
+### 설정 방법
+
+```bash
+# 자동 로드 비활성화
+/dtz:handoff autoload off
+
+# 자동 로드 활성화 (기본값)
+/dtz:handoff autoload on
+
+# 현재 상태 확인
+/dtz:handoff autoload
+```
+
+> 💡 autoload가 비활성화되어 있어도 `/dtz:handoff load` 명령으로 수동 로드는 항상 가능합니다.
