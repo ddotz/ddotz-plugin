@@ -51,6 +51,60 @@ PDCA 기반 자동화 개발 워크플로우. bkit 플러그인과 연동하여 
 > 💡 bkit 플러그인이 필요합니다. `fsd doctor`로 연동 상태를 확인하세요.
 > 💡 **Auto-detect**: 기존 PDCA 문서가 있으면 자동 감지하여 다음 단계부터 진행합니다.
 
+### /dtz:web-fetch
+스마트 웹 콘텐츠 fetch. Jina Reader를 기본으로 사용하고, 동적 페이지는 Playwriter/Playwright로 자동 fallback합니다.
+
+| Command | Description |
+|---------|-------------|
+| `/dtz:web-fetch {url}` | URL에서 콘텐츠 가져오기 (자동 전략) |
+| `/dtz:web-fetch {url} --jina` | Jina Reader 강제 사용 |
+| `/dtz:web-fetch {url} --playwriter` | Playwriter 강제 사용 |
+| `/dtz:web-fetch {url} --playwright` | Playwright 강제 사용 |
+| `/dtz:web-fetch detect {url}` | 페이지 타입 감지 (dry-run) |
+
+**전략 우선순위:**
+```
+1. Jina Reader (정적 페이지, 빠름, 마크다운 변환)
+   ↓ 실패 또는 동적 페이지
+2. Playwriter (MCP, JavaScript 렌더링)
+   ↓ 실패 또는 미설치
+3. Playwright (로컬 브라우저)
+```
+
+> 💡 정적 페이지(블로그, 문서)는 Jina로 빠르게, 동적 페이지(SPA, 대시보드)는 Playwriter로 자동 처리됩니다.
+
+## Auto Rules (자동 적용 규칙)
+
+### 웹 콘텐츠 가져오기 규칙
+
+**웹에서 정보를 가져와야 할 때 항상 다음 전략을 자동으로 적용합니다:**
+
+1. **Jina Reader 우선 사용** (기본)
+   - URL: `https://r.jina.ai/{encoded_url}`
+   - WebFetch 도구로 호출
+   - 정적 페이지에 최적 (블로그, 문서, 뉴스, 위키)
+
+2. **동적 페이지 감지 시 Playwriter 사용**
+   - SPA, 대시보드, 소셜 미디어 피드
+   - JavaScript 렌더링이 필요한 경우
+   - `mcp__playwriter__execute` 도구 사용
+
+3. **Playwriter 실패 시 Playwright fallback**
+   - 로컬 Playwright 설치 확인 후 사용
+
+**자동 감지 도메인:**
+| Type | Domains |
+|------|---------|
+| Static | medium.com, dev.to, docs.*, wikipedia.org, stackoverflow.com |
+| Dynamic | twitter.com, x.com, app.*, dashboard.*, console.* |
+
+**적용 시점:**
+- 사용자가 URL에서 정보를 요청할 때
+- "이 페이지 읽어줘", "URL 내용 가져와" 등의 요청
+- WebFetch 도구 사용 전 자동으로 전략 결정
+
+> ⚠️ **중요**: 일반 `fetch` 대신 항상 위 전략을 따릅니다. Jina Reader가 실패하면 자동으로 Playwriter → Playwright 순으로 fallback합니다.
+
 ## Best Practices
 
 1. **긴 작업 전**: `/dtz:handoff`로 현재 상태 저장
@@ -59,4 +113,4 @@ PDCA 기반 자동화 개발 워크플로우. bkit 플러그인과 연동하여 
 4. **HUD 설정**: `/dtz:hud`로 향상된 statusline 설정
 
 ---
-*DTZ Plugin v2.3.0*
+*DTZ Plugin v2.3.1*

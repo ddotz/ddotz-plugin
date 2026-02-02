@@ -61,6 +61,31 @@ PDCA-based automated development workflow. Integrates with bkit plugin to automa
 
 > Requires bkit plugin. Run `fsd doctor` to check integration status.
 
+### /dtz:web-fetch - Smart Web Content Fetching
+
+Fetch web content with automatic strategy selection. Uses Jina Reader for static pages (fast, markdown) and Playwriter/Playwright for dynamic pages (JavaScript rendering).
+
+| Command | Description |
+|---------|-------------|
+| `/dtz:web-fetch {url}` | Fetch content (auto strategy) |
+| `/dtz:web-fetch {url} --jina` | Force Jina Reader |
+| `/dtz:web-fetch {url} --playwriter` | Force Playwriter |
+| `/dtz:web-fetch {url} --playwright` | Force Playwright |
+| `/dtz:web-fetch detect {url}` | Detect page type (dry-run) |
+
+**Strategy Priority**:
+```
+1. Jina Reader (static pages, fast, markdown output)
+   ↓ failure or dynamic page
+2. Playwriter (MCP, JavaScript rendering)
+   ↓ failure or not installed
+3. Playwright (local browser automation)
+```
+
+**Page Type Detection**:
+- **Static**: Blogs (Medium, Dev.to), docs sites (MDN, GitHub), news, Wikipedia
+- **Dynamic**: SPAs, dashboards, social media feeds, admin panels
+
 ## Installation
 
 Add `ddotz` marketplace in Claude Code:
@@ -106,9 +131,16 @@ Create `.dtz/config.json` in your project:
 
 ## Version
 
-2.3.0
+2.3.1
 
 ## Changelog
+
+### v2.3.1
+- Add Web Fetch Strategy skill (`/dtz:web-fetch`)
+- Smart page type detection (static vs dynamic)
+- Jina Reader as default for static pages
+- Playwriter/Playwright fallback for dynamic pages
+- Auto strategy selection with manual override options
 
 ### v2.3.0
 - Add FSD (Full-cycle Structured Development) skill

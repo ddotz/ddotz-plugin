@@ -9,14 +9,14 @@
     {
       "name": "dtz",
       "description": "Session handoff, HUD statusline, and PDCA-based development workflow",
-      "version": "2.3.0",
+      "version": "2.3.1",
       "author": {
         "name": "ddotz"
       },
       "source": "./",
       "category": "productivity",
       "homepage": "https://github.com/ddotz/ddotz-plugin",
-      "tags": ["handoff", "session-management", "hud", "statusline", "pdca", "fsd", "workflow"]
+      "tags": ["handoff", "session-management", "hud", "statusline", "pdca", "fsd", "workflow", "web-fetch", "jina-reader"]
     }
   ]
 }
