@@ -1,10 +1,10 @@
 # DTZ Plugin
 
-Session handoff for seamless continuation in Claude Code.
+Session management and development workflow tools for Claude Code.
 
 ## Features
 
-### /dtz:handoff
+### /dtz:handoff - Session Handoff
 
 Save and restore session context for seamless continuation between sessions.
 
@@ -19,6 +19,48 @@ Save and restore session context for seamless continuation between sessions.
 | `/dtz:handoff autoload on` | Enable autoload |
 | `/dtz:handoff autoload off` | Disable autoload |
 
+**Auto-Load on Session Start**: New sessions automatically detect `.dtz/handoffs/latest.md` and display summary.
+
+### /dtz:hud - Statusline Configuration
+
+Configure Claude Code statusline with ddotz-hud for enhanced status display.
+
+| Command | Description |
+|---------|-------------|
+| `/dtz:hud` | Install and setup HUD |
+| `/dtz:hud setup` | Install and setup HUD |
+| `/dtz:hud update` | Update to latest version |
+| `/dtz:hud status` | Check current configuration |
+| `/dtz:hud reset` | Remove HUD settings |
+
+**HUD Layout**:
+```
+Opus 4.5 | ⎇ main v1.2.0 | ~/project
+  default | 5h:45% wk:23% | 58.4% | $2.34 | 1hr 26m | agents:2 | bg:1/5
+```
+
+### /dtz:fsd - Full-cycle Structured Development
+
+PDCA-based automated development workflow. Integrates with bkit plugin to automatically run Plan → Design → Do → Check → Iterate → Report cycle.
+
+| Command | Description |
+|---------|-------------|
+| `fsd: {description}` | Start FSD workflow (auto-detects existing docs) |
+| `fsd status` | Check current progress |
+| `fsd resume` | Resume interrupted workflow |
+| `fsd cancel` | Cancel active workflow |
+| `fsd config` | Check/change FSD settings |
+| `fsd doctor` | Diagnose integration status |
+| `fsd detect {feature}` | Test document detection for specific feature |
+
+**Key Features**:
+- Auto-detects existing PDCA documents and continues from next phase
+- Automatic iteration until 90% match rate achieved
+- Comprehensive progress tracking with visual indicators
+- Integration with bkit PDCA methodology
+
+> Requires bkit plugin. Run `fsd doctor` to check integration status.
+
 ## Installation
 
 Add `ddotz` marketplace in Claude Code:
@@ -27,12 +69,6 @@ Add `ddotz` marketplace in Claude Code:
 /plugin:marketplace add ddotz https://github.com/ddotz/ddotz-plugin
 /plugin:install dtz@ddotz
 ```
-
-## Auto-Load on Session Start
-
-New sessions automatically detect `.dtz/handoffs/latest.md` and display summary.
-
-Use `/dtz:handoff load` to restore context and tasks.
 
 ## Handoff Document
 
@@ -52,22 +88,33 @@ Create `.dtz/config.json` in your project:
   "handoff": {
     "autoload": true,
     "maxHistory": 10
+  },
+  "fsd": {
+    "maxIterations": 5,
+    "targetMatchRate": 90,
+    "autoReport": true
   }
 }
 ```
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `autoload` | `true` | Auto-load handoff on session start |
-| `maxHistory` | `10` | Max handoffs to keep |
-
-> 💡 To disable auto-load: `/dtz:handoff autoload off`
+| `handoff.autoload` | `true` | Auto-load handoff on session start |
+| `handoff.maxHistory` | `10` | Max handoffs to keep |
+| `fsd.maxIterations` | `5` | Max iteration cycles |
+| `fsd.targetMatchRate` | `90` | Target match rate percentage |
 
 ## Version
 
-2.2.1
+2.3.0
 
 ## Changelog
+
+### v2.3.0
+- Add FSD (Full-cycle Structured Development) skill
+- PDCA-based automated development workflow
+- Auto-detection of existing PDCA documents
+- Integration with bkit plugin
 
 ### v2.2.1
 - Use haiku model for handoff skill (token efficiency)
@@ -76,6 +123,10 @@ Create `.dtz/config.json` in your project:
 - Add handoff autoload toggle feature
 - New commands: `/dtz:handoff autoload on|off|status`
 - Configuration via `.dtz/config.json`
+
+### v2.1.0
+- Add HUD skill for statusline configuration
+- ddotz-hud integration
 
 ### v2.0.0
 - Removed max/eco modes
