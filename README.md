@@ -65,9 +65,12 @@ Create `.dtz/config.json` in your project:
 
 ## Version
 
-2.2.0
+2.2.1
 
 ## Changelog
+
+### v2.2.1
+- Use haiku model for handoff skill (token efficiency)
 
 ### v2.2.0
 - Add handoff autoload toggle feature
