@@ -35,6 +35,22 @@ Claude Code statusline 설정 (ddotz-hud).
 | `/dtz:hud status` | 현재 설정 상태 확인 |
 | `/dtz:hud reset` | HUD 설정 제거 |
 
+### /dtz:fsd (Magic Word: `fsd`)
+PDCA 기반 자동화 개발 워크플로우. bkit 플러그인과 연동하여 Plan → Design → Do → Check → Iterate → Report 전체 사이클을 자동으로 진행합니다.
+
+| Command | Description |
+|---------|-------------|
+| `fsd: {설명}` | FSD 워크플로우 시작 (기존 문서 자동 감지) |
+| `fsd status` | 현재 진행 상태 확인 |
+| `fsd resume` | 중단된 워크플로우 재개 |
+| `fsd cancel` | 진행 중인 워크플로우 취소 |
+| `fsd config` | FSD 설정 확인/변경 |
+| `fsd doctor` | 연동 상태 진단 및 검증 |
+| `fsd detect {feature}` | 특정 feature 문서 감지 테스트 |
+
+> 💡 bkit 플러그인이 필요합니다. `fsd doctor`로 연동 상태를 확인하세요.
+> 💡 **Auto-detect**: 기존 PDCA 문서가 있으면 자동 감지하여 다음 단계부터 진행합니다.
+
 ## Best Practices
 
 1. **긴 작업 전**: `/dtz:handoff`로 현재 상태 저장
@@ -43,4 +59,4 @@ Claude Code statusline 설정 (ddotz-hud).
 4. **HUD 설정**: `/dtz:hud`로 향상된 statusline 설정
 
 ---
-*DTZ Plugin v2.2.1*
+*DTZ Plugin v2.3.0*
