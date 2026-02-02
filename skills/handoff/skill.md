@@ -1,6 +1,7 @@
 ---
 name: handoff
 description: Save and restore session context for seamless continuation
+model: haiku
 triggers:
   - handoff
   - 핸드오프
