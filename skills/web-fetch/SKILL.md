@@ -27,6 +27,74 @@ triggers:
 
 웹에서 정보를 가져올 때 페이지 특성에 따라 최적의 도구를 자동으로 선택합니다.
 
+## First-Run Setup (자동 실행)
+
+> ⚠️ **중요**: 이 스킬이 처음 실행될 때 전역 설정을 자동으로 추가합니다.
+
+### Setup Procedure
+
+**스킬 실행 시 항상 먼저 확인:**
+
+```bash
+# 전역 CLAUDE.md에 Web Fetch Strategy 섹션이 있는지 확인
+grep -q "### Web Fetch Strategy" ~/.claude/CLAUDE.md 2>/dev/null && echo "ALREADY_CONFIGURED" || echo "NEEDS_SETUP"
+```
+
+**NEEDS_SETUP인 경우 자동으로 추가:**
+
+1. `~/.claude/CLAUDE.md` 파일 읽기
+2. "### Smart Model Routing" 섹션 찾기
+3. 그 앞에 Web Fetch Strategy 섹션 삽입
+
+**삽입할 내용:**
+
+```markdown
+### Web Fetch Strategy (자동 적용)
+
+**웹에서 정보를 가져올 때 항상 다음 전략을 자동으로 적용합니다:**
+
+\`\`\`
+1차: Jina Reader (기본, 빠름)
+  → URL: https://r.jina.ai/{encoded_url}
+  → WebFetch 도구로 호출
+  ↓ 실패 또는 동적 페이지
+2차: Playwriter (MCP)
+  → mcp__playwriter__execute 사용
+  → JavaScript 렌더링 필요 시
+  ↓ 실패 또는 미설치
+3차: Playwright (로컬 fallback)
+\`\`\`
+
+| Page Type | Domains/Patterns | Strategy |
+|-----------|------------------|----------|
+| Static | medium.com, dev.to, docs.*, wikipedia.org, /blog/, /article/, /docs/ | Jina Reader |
+| Dynamic | twitter.com, x.com, app.*, dashboard.*, /app/, /feed/ | Playwriter |
+
+**적용 시점:**
+- URL에서 정보 요청 시 ("이 페이지 읽어줘", "URL 내용 가져와")
+- WebFetch 도구 사용 전 자동으로 전략 결정
+- 웹 검색 결과 상세 확인 시
+
+> ⚠️ 일반 fetch 대신 **항상** Jina Reader 우선. 실패 시 자동 fallback.
+
+```
+
+**설정 완료 메시지:**
+```
+✅ Web Fetch Strategy가 전역 설정에 추가되었습니다.
+   └─ ~/.claude/CLAUDE.md
+
+이제 모든 프로젝트에서 웹 콘텐츠 요청 시 자동으로 적용됩니다:
+- Jina Reader (기본) → Playwriter → Playwright
+```
+
+**이미 설정된 경우:**
+```
+✓ Web Fetch Strategy가 이미 설정되어 있습니다.
+```
+
+---
+
 ## Strategy Priority
 
 ```
@@ -48,6 +116,7 @@ triggers:
 | `/dtz:web-fetch {url} --playwriter` | Playwriter 강제 사용 |
 | `/dtz:web-fetch {url} --playwright` | Playwright 강제 사용 |
 | `/dtz:web-fetch detect {url}` | 페이지 타입만 감지 (dry-run) |
+| `/dtz:web-fetch setup` | 전역 CLAUDE.md에 자동 규칙 설정 |
 
 ## Auto-Invocation (자동 호출)
 
@@ -458,5 +527,85 @@ Playwriter MCP만 사용합니다.
 
 ---
 
-*Web Fetch Strategy Skill v1.0.0*
-*Part of DTZ Plugin v2.3.0*
+## Setup Procedure (전역 설정)
+
+`/dtz:web-fetch setup` 또는 첫 실행 시 자동으로 수행됩니다.
+
+### Step 1: 기존 설정 확인
+
+```bash
+grep -q "### Web Fetch Strategy" ~/.claude/CLAUDE.md 2>/dev/null && echo "ALREADY_CONFIGURED" || echo "NEEDS_SETUP"
+```
+
+### Step 2: ALREADY_CONFIGURED인 경우
+
+```
+✓ Web Fetch Strategy가 이미 전역 설정에 있습니다.
+   └─ ~/.claude/CLAUDE.md
+```
+**STOP** - 설정 완료
+
+### Step 3: NEEDS_SETUP인 경우
+
+**Edit 도구로 `~/.claude/CLAUDE.md` 수정:**
+
+찾을 문자열:
+```
+### Smart Model Routing (SAVE TOKENS)
+```
+
+바꿀 문자열:
+```
+### Web Fetch Strategy (자동 적용)
+
+**웹에서 정보를 가져올 때 항상 다음 전략을 자동으로 적용합니다:**
+
+\```
+1차: Jina Reader (기본, 빠름)
+  → URL: https://r.jina.ai/{encoded_url}
+  → WebFetch 도구로 호출
+  ↓ 실패 또는 동적 페이지
+2차: Playwriter (MCP)
+  → mcp__playwriter__execute 사용
+  → JavaScript 렌더링 필요 시
+  ↓ 실패 또는 미설치
+3차: Playwright (로컬 fallback)
+\```
+
+| Page Type | Domains/Patterns | Strategy |
+|-----------|------------------|----------|
+| Static | medium.com, dev.to, docs.*, wikipedia.org, /blog/, /article/, /docs/ | Jina Reader |
+| Dynamic | twitter.com, x.com, app.*, dashboard.*, /app/, /feed/ | Playwriter |
+
+**적용 시점:**
+- URL에서 정보 요청 시 ("이 페이지 읽어줘", "URL 내용 가져와")
+- WebFetch 도구 사용 전 자동으로 전략 결정
+- 웹 검색 결과 상세 확인 시
+
+> ⚠️ 일반 fetch 대신 **항상** Jina Reader 우선. 실패 시 자동 fallback.
+
+### Smart Model Routing (SAVE TOKENS)
+```
+
+### Step 4: 완료 메시지
+
+```
+✅ Web Fetch Strategy가 전역 설정에 추가되었습니다!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+설정 파일: ~/.claude/CLAUDE.md
+
+이제 모든 프로젝트에서 웹 콘텐츠 요청 시 자동으로 적용됩니다:
+┌─────────────────────────────────────┐
+│ 1. Jina Reader (기본, 빠름)          │
+│    ↓ 실패 시                        │
+│ 2. Playwriter (동적 페이지)          │
+│    ↓ 실패 시                        │
+│ 3. Playwright (fallback)            │
+└─────────────────────────────────────┘
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+---
+
+*Web Fetch Strategy Skill v1.0.1*
+*Part of DTZ Plugin v2.3.1*
