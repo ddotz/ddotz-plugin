@@ -13,7 +13,27 @@ triggers:
 
 # FSD (Full-cycle Structured Development)
 
-bkit PDCA 방법론을 기반으로 Plan → Design → Do → Check → Iterate → Report 전체 사이클을 자동으로 진행합니다.
+**bkit PDCA 방법론**을 기반으로 Plan → Design → Do → Check → Iterate → Report 전체 사이클을 자동으로 진행합니다.
+
+---
+
+## ⛔ 핵심 원칙: bkit ONLY (OMC 사용 금지)
+
+**FSD는 모든 Phase에서 오직 `bkit:pdca` 스킬만 호출합니다.**
+
+| Phase | 올바른 호출 | ❌ 절대 금지 |
+|-------|------------|-------------|
+| Plan | `Skill: bkit:pdca` + `Args: plan {feature}` | ~~`oh-my-claudecode:plan`~~ |
+| Design | `Skill: bkit:pdca` + `Args: design {feature}` | ~~`oh-my-claudecode:plan`~~ |
+| Do | `Skill: bkit:pdca` + `Args: do {feature}` | ~~`oh-my-claudecode:executor`~~ |
+| Check | `Skill: bkit:pdca` + `Args: analyze {feature}` | ~~`oh-my-claudecode:architect`~~ |
+| Iterate | `Skill: bkit:pdca` + `Args: iterate {feature}` | ~~`oh-my-claudecode:*`~~ |
+| Report | `Skill: bkit:pdca` + `Args: report {feature}` | ~~`oh-my-claudecode:*`~~ |
+
+> ⚠️ **"구현 계획"이 필요해도 `oh-my-claudecode:plan`을 호출하지 마세요!**
+> FSD의 Plan은 bkit PDCA Plan 문서 생성입니다. OMC의 planning interview가 아닙니다.
+
+---
 
 ## Commands
 
@@ -332,6 +352,10 @@ Skill: bkit:pdca
 Args: plan {feature-name}
 ```
 
+> ⛔ **절대 금지**: `oh-my-claudecode:plan`을 호출하지 마세요!
+> FSD Plan은 bkit PDCA 문서 생성입니다. OMC planning interview가 아닙니다.
+> "구현 계획 수립"이라는 표현도 사용하지 마세요 (OMC 트리거 키워드).
+
 ### 4. 완료 확인
 
 Plan 문서 생성 확인:
@@ -377,6 +401,9 @@ Skill: bkit:pdca
 Args: design {feature-name}
 ```
 
+> ⛔ **절대 금지**: OMC 에이전트/스킬을 호출하지 마세요!
+> FSD Design은 bkit PDCA 설계 문서 생성입니다.
+
 ### 4. 완료 확인
 
 Design 문서 생성 확인:
@@ -414,35 +441,21 @@ ls docs/02-design/features/{feature-name}.design.md 2>/dev/null && echo "DESIGN_
 
 - `phases.do.status` = "in_progress"
 
-### 3. Design 문서 분석
+### 3. bkit PDCA 호출
 
-Design 문서를 읽고 구현해야 할 항목 파악:
-- Implementation Guide 섹션
-- 파일 구조
-- API 스펙
-- 컴포넌트 목록
-
-### 4. 구현 실행
-
-**executor 에이전트에 위임:**
+**Skill 도구로 bkit pdca do 호출:**
 ```
-Task(subagent_type="oh-my-claudecode:executor",
-     model="sonnet",
-     prompt="Design 문서 기반으로 구현해주세요:
-
-     Design 문서: docs/02-design/features/{feature-name}.design.md
-
-     구현 우선순위:
-     1. 핵심 데이터 모델/타입
-     2. 비즈니스 로직
-     3. API/인터페이스
-     4. UI 컴포넌트 (해당 시)
-
-     각 파일 생성 후 빌드 오류 없이 컴파일되는지 확인하세요.")
+Skill: bkit:pdca
+Args: do {feature-name}
 ```
 
-### 5. 구현 검증
+> ⚠️ **중요**: FSD는 bkit의 PDCA 흐름을 따릅니다.
+> OMC 에이전트(executor 등)를 직접 호출하지 않습니다.
+> bkit의 do 스킬이 내부적으로 구현을 처리합니다.
 
+### 4. 구현 완료 확인
+
+bkit pdca do 완료 후 구현 파일 존재 확인:
 ```bash
 # TypeScript 프로젝트의 경우
 npm run build 2>&1 || echo "BUILD_CHECK"
@@ -451,13 +464,13 @@ npm run build 2>&1 || echo "BUILD_CHECK"
 npx tsc --noEmit 2>&1 || echo "TYPE_CHECK"
 ```
 
-### 6. 상태 업데이트
+### 5. 상태 업데이트
 
 - `phases.do.status` = "completed"
 - `phases.do.completedAt` = "{ISO timestamp}"
 - `phase` = "check"
 
-### 7. 전환 안내
+### 6. 전환 안내
 
 ```
 ✅ Do 단계 완료!
@@ -488,6 +501,9 @@ npx tsc --noEmit 2>&1 || echo "TYPE_CHECK"
 Skill: bkit:pdca
 Args: analyze {feature-name}
 ```
+
+> ⛔ **절대 금지**: OMC 에이전트(architect, code-reviewer 등)를 호출하지 마세요!
+> FSD Check는 bkit의 gap-detector를 통한 분석입니다.
 
 ### 4. 결과 파싱
 
@@ -566,6 +582,9 @@ Skill: bkit:pdca
 Args: iterate {feature-name}
 ```
 
+> ⛔ **절대 금지**: OMC 에이전트(executor, build-fixer 등)를 호출하지 마세요!
+> FSD Iterate는 bkit의 pdca-iterator를 통한 자동 개선입니다.
+
 ### 4. 상태 업데이트
 
 - `phases.iterate.lastIteratedAt` = "{ISO timestamp}"
@@ -601,6 +620,9 @@ Args: iterate {feature-name}
 Skill: bkit:pdca
 Args: report {feature-name}
 ```
+
+> ⛔ **절대 금지**: OMC 에이전트(writer 등)를 호출하지 마세요!
+> FSD Report는 bkit의 report-generator를 통한 문서 생성입니다.
 
 ### 4. 상태 업데이트
 

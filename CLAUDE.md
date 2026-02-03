@@ -36,7 +36,7 @@ Claude Code statusline 설정 (ddotz-hud).
 | `/dtz:hud reset` | HUD 설정 제거 |
 
 ### /dtz:fsd (Magic Word: `fsd`)
-PDCA 기반 자동화 개발 워크플로우. bkit 플러그인과 연동하여 Plan → Design → Do → Check → Iterate → Report 전체 사이클을 자동으로 진행합니다.
+**bkit PDCA 방법론** 기반 자동화 개발 워크플로우. Plan → Design → Do → Check → Iterate → Report 전체 사이클을 자동으로 진행합니다.
 
 | Command | Description |
 |---------|-------------|
@@ -48,6 +48,7 @@ PDCA 기반 자동화 개발 워크플로우. bkit 플러그인과 연동하여 
 | `fsd doctor` | 연동 상태 진단 및 검증 |
 | `fsd detect {feature}` | 특정 feature 문서 감지 테스트 |
 
+> ⚠️ **중요**: FSD는 **bkit의 PDCA 스킬**(`/pdca`)을 호출합니다. OMC 에이전트를 직접 사용하지 않습니다.
 > 💡 bkit 플러그인이 필요합니다. `fsd doctor`로 연동 상태를 확인하세요.
 > 💡 **Auto-detect**: 기존 PDCA 문서가 있으면 자동 감지하여 다음 단계부터 진행합니다.
 
