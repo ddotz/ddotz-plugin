@@ -63,15 +63,29 @@ triggers:
 
 4. **저장**
    - `.dtz/handoffs/{session-id}.md` 저장
-   - `.dtz/handoffs/latest.md` 업데이트
+   - **latest.md 업데이트 (필수):**
+     ```bash
+     # 새 handoff 파일 내용을 latest.md에 복사
+     cp ".dtz/handoffs/{session-id}.md" ".dtz/handoffs/latest.md"
+     ```
+   - ⚠️ **중요**: 매 저장 시 반드시 latest.md를 새 파일로 덮어써야 함
 
 ## Load Procedure
 
 1. **파일 읽기**
    - ID 지정 시: `.dtz/handoffs/{id}.md`
-   - ID 없으면: `.dtz/handoffs/latest.md`
+   - ID 없으면: **최신 파일 검증 후 로드**
 
-2. **요약 출력**
+2. **최신 파일 검증 (ID 미지정 시 필수)**
+   ```bash
+   # handoffs 폴더에서 가장 최근 수정된 파일 찾기 (latest.md 제외)
+   ls -t .dtz/handoffs/*.md 2>/dev/null | grep -v latest.md | head -1
+   ```
+   - 결과 파일과 `latest.md` 내용 비교
+   - **불일치 시**: 가장 최근 파일로 `latest.md` 자동 업데이트 후 로드
+   - **일치 시**: `latest.md` 그대로 로드
+
+3. **요약 출력**
    - Session ID, 생성 날짜
    - Context 요약
    - Pending Tasks
