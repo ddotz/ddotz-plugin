@@ -4,7 +4,7 @@ DTZ (ddotz) 플러그인은 세션 관리 및 Claude Code 환경 설정을 위�
 
 ## Session Start Protocol
 
-매 세션 시작 시 자동으로 `.dtz/handoffs/latest.md` 파일을 확인합니다.
+매 세션 시작 시 현재 branch의 `.dtz/handoffs/{branch-name}/latest.md` 파일을 확인합니다.
 파일이 있으면 이전 세션 정보를 요약하여 표시합니다.
 
 > 💡 자동 로드를 끄려면: `/dtz:handoff autoload off`
@@ -12,17 +12,20 @@ DTZ (ddotz) 플러그인은 세션 관리 및 Claude Code 환경 설정을 위�
 ## Available Skills
 
 ### /dtz:handoff
-세션 컨텍스트 저장 및 복원.
+세션 컨텍스트 저장 및 복원. 기본 10개까지 보관하며 초과 시 자동 삭제됩니다.
 
 | Command | Description |
 |---------|-------------|
 | `/dtz:handoff` | 현재 상태 저장 |
 | `/dtz:handoff load` | 최신 handoff 로드 |
-| `/dtz:handoff list` | 목록 보기 |
-| `/dtz:handoff clear` | 기록 정리 |
+| `/dtz:handoff list` | 현재 branch의 handoff 목록 |
+| `/dtz:handoff list --all` | 모든 branch의 handoff 목록 |
+| `/dtz:handoff clear` | 현재 branch의 handoff 정리 |
 | `/dtz:handoff autoload` | autoload 상태 확인 |
 | `/dtz:handoff autoload on` | 자동 로드 활성화 |
 | `/dtz:handoff autoload off` | 자동 로드 비활성화 |
+| `/dtz:handoff config` | 현재 설정 확인 |
+| `/dtz:handoff config maxHandoffs N` | 최대 보관 개수 설정 (기본: 10, 0=무제한) |
 
 ### /dtz:hud
 Claude Code statusline 설정 (ddotz-hud).
@@ -114,4 +117,4 @@ Claude Code statusline 설정 (ddotz-hud).
 4. **HUD 설정**: `/dtz:hud`로 향상된 statusline 설정
 
 ---
-*DTZ Plugin v2.3.1*
+*DTZ Plugin v2.4.0*

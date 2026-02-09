@@ -13,6 +13,7 @@ triggers:
 # DTZ Handoff Skill
 
 세션 컨텍스트를 저장하고 복원하여 작업 연속성을 보장합니다.
+**Branch별로 handoff를 분리 관리**하여 여러 branch 작업 시 혼란을 방지합니다.
 
 ## Commands
 
@@ -21,11 +22,52 @@ triggers:
 | `/dtz:handoff` | 현재 세션 상태 저장 |
 | `/dtz:handoff save [name]` | 이름 지정하여 저장 |
 | `/dtz:handoff load [id]` | 특정 handoff 로드 |
-| `/dtz:handoff list` | 저장된 handoff 목록 |
-| `/dtz:handoff clear` | handoff 기록 정리 |
+| `/dtz:handoff list` | 현재 branch의 handoff 목록 |
+| `/dtz:handoff list --all` | 모든 branch의 handoff 목록 |
+| `/dtz:handoff clear` | 현재 branch의 handoff 정리 |
 | `/dtz:handoff autoload` | autoload 상태 확인 |
 | `/dtz:handoff autoload on` | autoload 활성화 |
 | `/dtz:handoff autoload off` | autoload 비활성화 |
+| `/dtz:handoff config` | 현재 설정 확인 |
+| `/dtz:handoff config maxHandoffs [N]` | 최대 보관 개수 설정 (기본: 10) |
+
+## Branch 이름 조회 (모든 절차의 필수 선행 단계)
+
+> **모든 Save/Load/List/Clear 절차 시작 전 반드시 현재 branch 이름을 조회해야 합니다.**
+
+```bash
+# 현재 branch 이름 조회 (슬래시를 --로 변환)
+git branch --show-current | tr '/' '--'
+```
+
+- 결과 예시: `main`, `feature--auth`, `fix--login-bug`
+- 이 값을 `{branch-name}`으로 사용
+- 저장 경로: `.dtz/handoffs/{branch-name}/`
+
+## Migration (자동 마이그레이션)
+
+> **Save/Load/List/Clear 실행 시 자동으로 수행됩니다.**
+
+기존 `.dtz/handoffs/` 루트에 `.md` 파일이 있으면 `main/` 디렉토리로 자동 이동합니다.
+
+```bash
+# 루트에 .md 파일이 있는지 확인
+ls .dtz/handoffs/*.md 2>/dev/null | head -1
+```
+
+마이그레이션이 필요한 경우:
+```bash
+# main 디렉토리 생성
+mkdir -p .dtz/handoffs/main
+
+# 루트의 .md 파일을 main/으로 이동
+mv .dtz/handoffs/*.md .dtz/handoffs/main/
+```
+
+마이그레이션 수행 시 메시지 출력:
+```
+📦 Migration: 기존 handoff 파일을 main/ 디렉토리로 이동했습니다.
+```
 
 ## Save Procedure
 
@@ -33,7 +75,7 @@ triggers:
 
 > **NEVER guess or fabricate timestamps. ALWAYS execute Bash commands first.**
 
-1. **[MANDATORY FIRST STEP] 시스템 시간 조회**
+1. **[MANDATORY FIRST STEP] 시스템 시간 및 Branch 조회**
 
    **문서 작성 전에 반드시 아래 Bash 명령을 실행하세요:**
 
@@ -43,6 +85,9 @@ triggers:
 
    # 2. Session ID 생성 (이 값을 Session ID에 사용)
    echo "$(date +%Y-%m-%d)_$(openssl rand -hex 3)"
+
+   # 3. 현재 branch 이름 조회 (슬래시를 --로 변환)
+   git branch --show-current | tr '/' '--'
    ```
 
    **규칙:**
@@ -51,51 +96,85 @@ triggers:
    - ✅ 반드시 `date` 명령 실행 결과를 그대로 복사해서 사용
    - ✅ Bash 실행 → 결과 확인 → 그 값을 문서에 복사
 
-2. **정보 수집**
+2. **마이그레이션 확인** (Migration 섹션 참고)
+
+3. **정보 수집**
    - TaskList로 현재 TODO 수집
    - 대화에서 주요 결정사항 추출
    - 최근 작업 파일 목록 정리
 
-3. **문서 생성**
+4. **문서 생성**
    - Step 1에서 가져온 **정확한 시스템 시간**을 `Created` 필드에 사용
    - Step 1에서 생성한 **정확한 Session ID**를 사용
+   - Step 1에서 조회한 **branch 이름**을 `Branch` 필드에 사용
    - 표준 템플릿으로 구성
 
-4. **저장**
-   - `.dtz/handoffs/{session-id}.md` 저장
+5. **저장**
+   - 디렉토리 생성: `mkdir -p .dtz/handoffs/{branch-name}`
+   - `.dtz/handoffs/{branch-name}/{session-id}.md` 저장
    - **latest.md 업데이트 (필수):**
      ```bash
      # 새 handoff 파일 내용을 latest.md에 복사
-     cp ".dtz/handoffs/{session-id}.md" ".dtz/handoffs/latest.md"
+     cp ".dtz/handoffs/{branch-name}/{session-id}.md" ".dtz/handoffs/{branch-name}/latest.md"
      ```
    - ⚠️ **중요**: 매 저장 시 반드시 latest.md를 새 파일로 덮어써야 함
 
+6. **자동 정리 (Auto-Cleanup)**
+   - 저장 후 maxHandoffs 초과 여부 확인
+   - **maxHandoffs 값 확인:**
+     ```bash
+     # config.json에서 maxHandoffs 읽기 (없으면 기본값 10)
+     cat .dtz/config.json 2>/dev/null | grep -o '"maxHandoffs":[0-9]*' | cut -d: -f2 || echo 10
+     ```
+   - **현재 파일 개수 확인 (latest.md 제외, branch 디렉토리 내):**
+     ```bash
+     ls -1 .dtz/handoffs/{branch-name}/*.md 2>/dev/null | grep -v latest.md | wc -l
+     ```
+   - **초과 시 오래된 파일 삭제:**
+     ```bash
+     # 가장 오래된 파일부터 삭제 (oldest first, branch 디렉토리 내)
+     ls -t .dtz/handoffs/{branch-name}/*.md | grep -v latest.md | tail -n +$((maxHandoffs + 1)) | xargs rm -f
+     ```
+   - 삭제된 파일이 있으면 메시지 출력:
+     ```
+     🧹 Auto-cleanup: {N}개의 오래된 handoff 삭제됨 (maxHandoffs: {limit})
+     ```
+
 ## Load Procedure
 
-1. **파일 읽기**
-   - ID 지정 시: `.dtz/handoffs/{id}.md`
+1. **Branch 이름 조회** (Branch 이름 조회 섹션 참고)
+
+2. **마이그레이션 확인** (Migration 섹션 참고)
+
+3. **파일 읽기**
+   - ID 지정 시: `.dtz/handoffs/{branch-name}/{id}.md`
    - ID 없으면: **최신 파일 검증 후 로드**
 
-2. **최신 파일 검증 (ID 미지정 시 필수)**
+4. **최신 파일 검증 (ID 미지정 시 필수)**
    ```bash
-   # handoffs 폴더에서 가장 최근 수정된 파일 찾기 (latest.md 제외)
-   ls -t .dtz/handoffs/*.md 2>/dev/null | grep -v latest.md | head -1
+   # branch 디렉토리에서 가장 최근 수정된 파일 찾기 (latest.md 제외)
+   ls -t .dtz/handoffs/{branch-name}/*.md 2>/dev/null | grep -v latest.md | head -1
    ```
    - 결과 파일과 `latest.md` 내용 비교
    - **불일치 시**: 가장 최근 파일로 `latest.md` 자동 업데이트 후 로드
    - **일치 시**: `latest.md` 그대로 로드
+   - **현재 branch에 handoff가 없을 시**:
+     ```
+     ℹ️ 현재 branch ({branch-name})에 저장된 handoff가 없습니다.
+     💡 다른 branch의 handoff를 보려면: /dtz:handoff list --all
+     ```
 
-3. **요약 출력**
-   - Session ID, 생성 날짜
+5. **요약 출력**
+   - Session ID, 생성 날짜, Branch
    - Context 요약
    - Pending Tasks
 
-3. **TODO 복원**
+6. **TODO 복원**
    - Pending Tasks를 TaskCreate로 생성
 
 ## Handoff Document Template
 
-> ⚠️ `{실제_시스템_시간}`, `{실제_session_id}` 자리에는 **반드시 Bash 명령 실행 결과**를 복사해서 붙여넣으세요.
+> ⚠️ `{실제_시스템_시간}`, `{실제_session_id}`, `{branch-name}` 자리에는 **반드시 Bash 명령 실행 결과**를 복사해서 붙여넣으세요.
 
 ```markdown
 # Session Handoff
@@ -106,6 +185,7 @@ triggers:
 | Session ID | `{실제_session_id}` |
 | Created | `{실제_시스템_시간}` |
 | Project | `{directory name}` |
+| Branch | `{branch-name}` |
 
 ## Context Summary
 {2-3문장 작업 요약}
@@ -126,29 +206,35 @@ triggers:
 1. 다음 할 일
 
 ---
-*Generated by DTZ Handoff v2.0.5*
+*Generated by DTZ Handoff v2.2.0*
 ```
 
 ## List Procedure
 
 저장된 handoff 목록을 표시합니다.
 
-1. **Glob 도구 사용** (Bash 대신)
+### `list` (현재 branch만)
+
+1. **Branch 이름 조회** (Branch 이름 조회 섹션 참고)
+
+2. **마이그레이션 확인** (Migration 섹션 참고)
+
+3. **Glob 도구 사용** (Bash 대신)
    ```
-   Glob 패턴: .dtz/handoffs/*.md
+   Glob 패턴: .dtz/handoffs/{branch-name}/*.md
    ```
 
-2. **결과 필터링**
+4. **결과 필터링**
    - `latest.md`는 목록에서 제외 (심볼릭 링크 역할)
    - 파일명에서 Session ID 추출
 
-3. **정보 수집**
+5. **정보 수집**
    - 각 파일에서 Created 날짜와 Context Summary 추출
    - Read 도구로 파일 내용 읽기
 
-4. **출력 형식**
+6. **출력 형식**
    ```
-   📋 Saved Handoffs
+   📋 Saved Handoffs (branch: {branch-name})
    ─────────────────────────────────
    1. 2025-01-30_abc123
       Created: 2025-01-30 14:30:00
@@ -161,33 +247,81 @@ triggers:
    Total: 2 handoffs
    ```
 
+### `list --all` (모든 branch)
+
+1. **마이그레이션 확인** (Migration 섹션 참고)
+
+2. **Glob 도구 사용**
+   ```
+   Glob 패턴: .dtz/handoffs/**/*.md
+   ```
+
+3. **결과를 branch별로 그룹핑**
+   - 디렉토리명에서 branch 이름 추출
+   - `latest.md`는 목록에서 제외
+
+4. **출력 형식**
+   ```
+   📋 All Saved Handoffs
+   ═════════════════════════════════
+
+   🔀 main (2 handoffs)
+   ─────────────────────────────────
+   1. 2025-01-30_abc123
+      Created: 2025-01-30 14:30:00
+      Context: API 인증 기능 구현 중...
+
+   2. 2025-01-29_def456
+      Created: 2025-01-29 18:45:00
+      Context: 데이터베이스 마이그레이션...
+
+   🔀 feature--auth (1 handoff)
+   ─────────────────────────────────
+   1. 2025-01-31_ghi789
+      Created: 2025-01-31 10:00:00
+      Context: OAuth2 인증 플로우 구현...
+
+   ═════════════════════════════════
+   Total: 3 handoffs across 2 branches
+   ```
+
 > ⚠️ **중요**: Bash의 for loop 대신 반드시 **Glob 도구**를 사용하세요.
 > zsh와 bash 간 문법 호환성 문제를 피할 수 있습니다.
 
 ## Clear Procedure
 
-오래된 handoff 기록을 정리합니다.
+현재 branch의 handoff 기록을 정리합니다.
 
-1. **목록 확인**
-   - Glob으로 `.dtz/handoffs/*.md` 파일 목록 조회
+1. **Branch 이름 조회** (Branch 이름 조회 섹션 참고)
+
+2. **마이그레이션 확인** (Migration 섹션 참고)
+
+3. **목록 확인**
+   - Glob으로 `.dtz/handoffs/{branch-name}/*.md` 파일 목록 조회
    - `latest.md` 제외
 
-2. **사용자 확인**
+4. **사용자 확인**
    - 삭제할 파일 목록 표시
    - AskUserQuestion으로 확인 요청:
      - "모두 삭제" - 전체 삭제
      - "최근 N개 유지" - 최근 파일 보존
      - "취소" - 작업 취소
 
-3. **삭제 실행**
+5. **삭제 실행**
    ```bash
    # 개별 파일 삭제 (rm 명령 사용)
-   rm ".dtz/handoffs/{session-id}.md"
+   rm ".dtz/handoffs/{branch-name}/{session-id}.md"
    ```
 
-4. **latest.md 처리**
+6. **latest.md 처리**
    - 모든 파일 삭제 시: latest.md도 삭제
    - 일부 보존 시: 가장 최근 파일로 latest.md 업데이트
+
+7. **빈 디렉토리 정리**
+   - branch 디렉토리가 비어 있으면 삭제:
+     ```bash
+     rmdir ".dtz/handoffs/{branch-name}" 2>/dev/null
+     ```
 
 ## Autoload Procedure
 
@@ -263,13 +397,24 @@ triggers:
 
 ## Auto-Load on Session Start
 
-새 세션 시작 시 자동으로 `.dtz/handoffs/latest.md` 감지.
+새 세션 시작 시 현재 branch의 `.dtz/handoffs/{branch-name}/latest.md` 감지.
+
+### 동작 절차
+
+1. **Branch 이름 조회**
+   ```bash
+   git branch --show-current | tr '/' '--'
+   ```
+
+2. **마이그레이션 확인** (Migration 섹션 참고)
+
+3. **latest.md 감지**: `.dtz/handoffs/{branch-name}/latest.md` 존재 여부 확인
 
 ### 동작 조건
 
 | 조건 | 동작 |
 |------|------|
-| `autoload: true` (기본값) | latest.md 감지 시 요약 정보 표시 |
+| `autoload: true` (기본값) | 현재 branch의 latest.md 감지 시 요약 정보 표시 |
 | `autoload: false` | 자동 로드 건너뜀 (수동 로드만 가능) |
 | 설정 파일 없음 | `autoload: true`로 동작 (기본값) |
 
@@ -287,3 +432,77 @@ triggers:
 ```
 
 > 💡 autoload가 비활성화되어 있어도 `/dtz:handoff load` 명령으로 수동 로드는 항상 가능합니다.
+
+## Config Procedure
+
+Handoff 설정을 확인하고 변경합니다.
+
+### config (설정 확인)
+
+1. **Config 파일 읽기**
+   - `.dtz/config.json` 파일 확인
+   - 파일 없으면 기본값 사용
+
+2. **현재 설정 출력**
+   ```
+   ⚙️ Handoff 설정
+   ─────────────────────────────────
+   maxHandoffs: 10 (기본값)
+   autoload: true
+   ─────────────────────────────────
+
+   💡 변경하려면:
+      /dtz:handoff config maxHandoffs 20
+   ```
+
+### config maxHandoffs [N]
+
+최대 보관할 handoff 파일 개수를 설정합니다.
+
+1. **값 검증**
+   - N은 1 이상의 정수여야 함
+   - 권장 범위: 5-50
+
+2. **Config 파일 업데이트**
+   ```json
+   {
+     "handoff": {
+       "autoload": true,
+       "maxHandoffs": 10
+     }
+   }
+   ```
+
+3. **즉시 정리 실행**
+   - 현재 파일 개수가 새 maxHandoffs 초과 시 즉시 정리
+   - 사용자에게 확인 요청:
+     ```
+     ⚠️ 현재 15개 파일이 있습니다. 10개로 줄이면 5개가 삭제됩니다.
+     계속하시겠습니까?
+     ```
+
+4. **확인 메시지**
+   ```
+   ✅ maxHandoffs가 10으로 설정되었습니다.
+   새 handoff 저장 시 10개 초과 파일은 자동 삭제됩니다.
+   ```
+
+## Config Schema
+
+`.dtz/config.json` 파일 구조:
+
+```json
+{
+  "handoff": {
+    "autoload": true,
+    "maxHandoffs": 10
+  }
+}
+```
+
+| 설정 | 타입 | 기본값 | 설명 |
+|------|------|--------|------|
+| `autoload` | boolean | `true` | 세션 시작 시 자동 로드 |
+| `maxHandoffs` | number | `10` | 최대 보관 파일 개수 (1-100) |
+
+> 💡 `maxHandoffs`를 `0`으로 설정하면 자동 정리가 비활성화됩니다 (무제한 보관).
