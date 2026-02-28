@@ -1,22 +1,22 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "ddotz",
-  "description": "Session management and development workflow tools for Claude Code",
+  "description": "HUD configuration and web content tools for Claude Code",
   "owner": {
     "name": "ddotz"
   },
   "plugins": [
     {
       "name": "dtz",
-      "description": "Session handoff, HUD statusline, and PDCA-based development workflow",
-      "version": "2.3.1",
+      "description": "HUD statusline and smart web content workflow",
+      "version": "2.4.2",
       "author": {
         "name": "ddotz"
       },
       "source": "./",
       "category": "productivity",
       "homepage": "https://github.com/ddotz/ddotz-plugin",
-      "tags": ["handoff", "session-management", "hud", "statusline", "pdca", "fsd", "workflow", "web-fetch", "jina-reader"]
+      "tags": ["hud", "statusline", "workflow", "web-fetch", "jina-reader"]
     }
   ]
 }

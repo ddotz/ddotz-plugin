@@ -1,25 +1,8 @@
 # DTZ Plugin
 
-Session management and development workflow tools for Claude Code.
+HUD configuration and web content tools for Claude Code.
 
 ## Features
-
-### /dtz:handoff - Session Handoff
-
-Save and restore session context for seamless continuation between sessions.
-
-| Command | Description |
-|---------|-------------|
-| `/dtz:handoff` | Save current session state |
-| `/dtz:handoff save [name]` | Save with custom name |
-| `/dtz:handoff load [id]` | Load specific handoff |
-| `/dtz:handoff list` | List saved handoffs |
-| `/dtz:handoff clear` | Clear handoff history |
-| `/dtz:handoff autoload` | Check autoload status |
-| `/dtz:handoff autoload on` | Enable autoload |
-| `/dtz:handoff autoload off` | Disable autoload |
-
-**Auto-Load on Session Start**: New sessions automatically detect `.dtz/handoffs/latest.md` and display summary.
 
 ### /dtz:hud - Statusline Configuration
 
@@ -39,31 +22,11 @@ Opus 4.5 | ⎇ main v1.2.0 | ~/project
   default | 5h:45% wk:23% | 58.4% | $2.34 | 1hr 26m | agents:2 | bg:1/5
 ```
 
-### /dtz:fsd - Full-cycle Structured Development
-
-PDCA-based automated development workflow. Integrates with bkit plugin to automatically run Plan → Design → Do → Check → Iterate → Report cycle.
-
-| Command | Description |
-|---------|-------------|
-| `fsd: {description}` | Start FSD workflow (auto-detects existing docs) |
-| `fsd status` | Check current progress |
-| `fsd resume` | Resume interrupted workflow |
-| `fsd cancel` | Cancel active workflow |
-| `fsd config` | Check/change FSD settings |
-| `fsd doctor` | Diagnose integration status |
-| `fsd detect {feature}` | Test document detection for specific feature |
-
-**Key Features**:
-- Auto-detects existing PDCA documents and continues from next phase
-- Automatic iteration until 90% match rate achieved
-- Comprehensive progress tracking with visual indicators
-- Integration with bkit PDCA methodology
-
-> Requires bkit plugin. Run `fsd doctor` to check integration status.
-
 ### /dtz:web-fetch - Smart Web Content Fetching
 
 Fetch web content with automatic strategy selection. Uses Jina Reader for static pages (fast, markdown) and Playwriter/Playwright for dynamic pages (JavaScript rendering).
+
+> First run automatically adds Web Fetch Strategy to global `~/.claude/CLAUDE.md`.
 
 | Command | Description |
 |---------|-------------|
@@ -86,6 +49,17 @@ Fetch web content with automatic strategy selection. Uses Jina Reader for static
 - **Static**: Blogs (Medium, Dev.to), docs sites (MDN, GitHub), news, Wikipedia
 - **Dynamic**: SPAs, dashboards, social media feeds, admin panels
 
+### /dtz:karpathy-guidelines - Coding Behavior Rules
+
+Apply Karpathy-style coding guardrails for predictable LLM coding behavior.
+
+| Command | Description |
+|---------|-------------|
+| `/dtz:karpathy-guidelines` | Apply guidelines and initialize global rules |
+| `/dtz:karpathy-guidelines setup` | Force setup rules in `~/.claude/CLAUDE.md` |
+
+> First run automatically adds Karpathy Coding Guidelines to global `~/.claude/CLAUDE.md`.
+
 ## Installation
 
 Add `ddotz` marketplace in Claude Code:
@@ -95,43 +69,25 @@ Add `ddotz` marketplace in Claude Code:
 /plugin:install dtz@ddotz
 ```
 
-## Handoff Document
-
-Saved handoffs include:
-- Context Summary
-- Completed/Pending Tasks
-- Key Decisions
-- Important Files
-- Next Steps
-
 ## Configuration
 
 Create `.dtz/config.json` in your project:
 
 ```json
 {
-  "handoff": {
-    "autoload": true,
-    "maxHistory": 10
-  },
-  "fsd": {
-    "maxIterations": 5,
-    "targetMatchRate": 90,
-    "autoReport": true
+  "webFetch": {
+    "defaultStrategy": "auto"
   }
 }
 ```
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `handoff.autoload` | `true` | Auto-load handoff on session start |
-| `handoff.maxHistory` | `10` | Max handoffs to keep |
-| `fsd.maxIterations` | `5` | Max iteration cycles |
-| `fsd.targetMatchRate` | `90` | Target match rate percentage |
+| `webFetch.defaultStrategy` | `auto` | Default strategy for `/dtz:web-fetch` |
 
 ## Version
 
-2.3.1
+2.4.2
 
 ## Changelog
 
@@ -141,6 +97,13 @@ Create `.dtz/config.json` in your project:
 - Jina Reader as default for static pages
 - Playwriter/Playwright fallback for dynamic pages
 - Auto strategy selection with manual override options
+
+### v2.4.2
+- Deprecate and remove `/dtz:handoff` feature
+- Deprecate and remove `fsd` workflow feature
+- Remove SessionStart hook integration
+- Add first-run global auto-setup for `/dtz:web-fetch`
+- Add first-run global auto-setup for `/dtz:karpathy-guidelines`
 
 ### v2.3.0
 - Add FSD (Full-cycle Structured Development) skill

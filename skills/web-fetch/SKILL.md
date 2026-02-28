@@ -43,8 +43,9 @@ grep -q "### Web Fetch Strategy" ~/.claude/CLAUDE.md 2>/dev/null && echo "ALREAD
 **NEEDS_SETUP인 경우 자동으로 추가:**
 
 1. `~/.claude/CLAUDE.md` 파일 읽기
-2. "### Smart Model Routing" 섹션 찾기
-3. 그 앞에 Web Fetch Strategy 섹션 삽입
+2. `### Smart Model Routing` 섹션 찾기
+3. 섹션이 있으면 그 앞에 Web Fetch Strategy 섹션 삽입
+4. 섹션이 없으면 파일 맨 끝에 Web Fetch Strategy 섹션 추가
 
 **삽입할 내용:**
 
@@ -608,4 +609,4 @@ grep -q "### Web Fetch Strategy" ~/.claude/CLAUDE.md 2>/dev/null && echo "ALREAD
 ---
 
 *Web Fetch Strategy Skill v1.0.1*
-*Part of DTZ Plugin v2.3.1*
+*Part of DTZ Plugin v2.4.2*
