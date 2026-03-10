@@ -39,6 +39,16 @@ Claude Code statusline 설정 (ddotz-hud).
 
 > 💡 정적 페이지(블로그, 문서)는 Jina로 빠르게, 동적 페이지(SPA, 대시보드)는 Playwriter로 자동 처리됩니다.
 
+### /dtz:sa
+현재 활성화된 스킬 중 상황에 맞는 최적의 스킬을 추천합니다.
+
+| Command | Description |
+|---------|-------------|
+| `/dtz:sa` | 상황 설명을 요청한 뒤 스킬 추천 |
+| `/dtz:sa {상황}` | 상황에 맞는 스킬 즉시 추천 |
+
+> 💡 모든 활성 스킬(superpowers, OMC, dtz 등)을 대상으로 추천합니다.
+
 ### /dtz:karpathy-guidelines
 LLM 코딩 실수를 줄이기 위한 행동 가이드라인. [Andrej Karpathy의 관찰](https://x.com/karpathy/status/2015883857489522876)에서 파생된 4가지 원칙입니다.
 

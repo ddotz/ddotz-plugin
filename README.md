@@ -49,6 +49,15 @@ Fetch web content with automatic strategy selection. Uses Jina Reader for static
 - **Static**: Blogs (Medium, Dev.to), docs sites (MDN, GitHub), news, Wikipedia
 - **Dynamic**: SPAs, dashboards, social media feeds, admin panels
 
+### /dtz:sa - Skill Advisor
+
+Recommends the best skill for your current situation from all active skills.
+
+| Command | Description |
+|---------|-------------|
+| `/dtz:sa` | Ask for context, then recommend |
+| `/dtz:sa {situation}` | Recommend skill immediately |
+
 ### /dtz:karpathy-guidelines - Coding Behavior Rules
 
 Apply Karpathy-style coding guardrails for predictable LLM coding behavior.
