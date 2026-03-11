@@ -100,6 +100,11 @@ Create `.dtz/config.json` in your project:
 
 ## Changelog
 
+### v2.4.3
+- Improve `/dtz:sa` skill: add Step 4 combo execution (추천 → 보조 순서로 조합 실행)
+- Add `pending` 옵션 선택지 (`y` / `1` / `2`) for granular skill invocation
+- Add global auto rule: pending todo 자동 생성 (작업 중 이슈 발견 시)
+
 ### v2.3.1
 - Add Web Fetch Strategy skill (`/dtz:web-fetch`)
 - Smart page type detection (static vs dynamic)
