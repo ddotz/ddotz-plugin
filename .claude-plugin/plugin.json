@@ -1,6 +1,6 @@
 {
   "name": "dtz",
-  "version": "2.4.2",
+  "version": "2.4.3",
   "description": "HUD configuration and web content tools for Claude Code",
   "skills": "./skills/"
 }
