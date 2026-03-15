@@ -52,13 +52,27 @@ fi
 cd ~/.claude/hud/ddotz-hud && npm install && npm run build
 ```
 
-### 5. 설정 백업
+### 5. API 인증 정보 설정 (Rate Limits용)
+- AskUserQuestion: "API Rate Limits(5시간/주간 사용량) 표시를 위해 Session Key와 Organization ID를 설정하시겠습니까?"
+  - Options: "네", "아니오 (skip)"
+  - "네" 선택 시:
+    - TextInput: "Claude Session Key (sk-ant-...):"
+    - TextInput: "Organization ID (UUID):"
+    - 입력받은 값을 JSON 형식으로 `~/.claude/ddotz-hud-config.json` 에 쓰기
+```json
+{
+  "sessionKey": "{입력한_세션키}",
+  "orgId": "{입력한_조직ID}"
+}
+```
+
+### 6. 설정 백업
 ```bash
 mkdir -p ~/.claude/hud/.backup
 cp ~/.claude/settings.json ~/.claude/hud/.backup/settings.json.$(date +%Y%m%d_%H%M%S) 2>/dev/null || true
 ```
 
-### 6. settings.json 업데이트
+### 7. settings.json 업데이트
 - Read `~/.claude/settings.json`
 - JSON 파싱
 - `statusLine` 키를 다음으로 설정:
@@ -73,12 +87,13 @@ cp ~/.claude/settings.json ~/.claude/hud/.backup/settings.json.$(date +%Y%m%d_%H
 ```
 - 파일 저장
 
-### 7. 완료 메시지
-```
+### 8. 완료 메시지
+```text
 ✅ HUD 설정 완료!
 
 설치 위치: ~/.claude/hud/ddotz-hud
 설정 파일: ~/.claude/settings.json
+(선택 사항인 API 키가 입력된 경우 `~/.claude/ddotz-hud-config.json`에 저장됨)
 
 ⚠️ Claude Code를 재시작하면 새 statusline이 적용됩니다.
 ```
