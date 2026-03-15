@@ -53,6 +53,15 @@ cd ~/.claude/hud/ddotz-hud && npm install && npm run build
 ```
 
 ### 5. API 인증 정보 설정 (Rate Limits용)
+- 먼저 사용자에게 키 추출 방법을 안내합니다:
+```text
+💡 Rate Limits 기능을 사용하려면 Claude AI 웹사이트에서 설정값을 가져와야 합니다.
+1. https://claude.ai 에 접속하여 로그인합니다.
+2. 개발자 도구(F12)를 열고 Application(응용 프로그램) 탭 -> 좌측 Cookies 메뉴로 이동합니다.
+3. `sessionKey` 항목의 Value (sk-ant-...) 를 복사합니다. 이게 Session Key입니다.
+4. 똑같이 로그인 된 상태에서 브라우저 주소창에 `https://claude.ai/api/organizations` 를 입력하고 엔터를 칩니다.
+5. 화면에 표시되는 텍스트(JSON) 중 `"uuid":"..."` 에 적힌 값(예: 3e85ef21-...)을 복사합니다. 이게 Organization ID 입니다.
+```
 - AskUserQuestion: "API Rate Limits(5시간/주간 사용량) 표시를 위해 Session Key와 Organization ID를 설정하시겠습니까?"
   - Options: "네", "아니오 (skip)"
   - "네" 선택 시:
