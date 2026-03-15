@@ -28,28 +28,21 @@ Claude Code의 statusline을 ddotz-hud로 설정합니다.
 
 ### 1. 환경 확인
 ```bash
-which node && which npm && which git
+node -v && npm -v && git --version
 ```
-- 하나라도 없으면 설치 안내 후 중단
+- 실패 시 설치 안내 후 중단
 
 ### 2. 디렉토리 준비
-```bash
-mkdir -p ~/.claude/hud
-```
+- 사용자의 홈 디렉토리 하위에 `.claude/hud` 폴더를 생성합니다. (Windows의 경우 `%USERPROFILE%\.claude\hud`)
 
 ### 3. 저장소 클론 또는 업데이트
-```bash
-# 이미 존재하는지 확인
-if [ -d ~/.claude/hud/ddotz-hud ]; then
-  cd ~/.claude/hud/ddotz-hud && git pull
-else
-  git clone https://github.com/ddotz/ddotz-hud.git ~/.claude/hud/ddotz-hud
-fi
-```
+- 해당 경로에 `ddotz-hud` 폴더가 존재하면 `git pull`을 실행합니다.
+- 존재하지 않으면 `git clone https://github.com/ddotz/ddotz-hud.git`을 수행합니다.
 
 ### 4. 의존성 설치 및 빌드
+- `ddotz-hud` 폴더로 이동하여 의존성을 설치하고 빌드합니다.
 ```bash
-cd ~/.claude/hud/ddotz-hud && npm install && npm run build
+npm install && npm run build
 ```
 
 ### 5. API 인증 정보 설정 (Rate Limits용)
@@ -76,20 +69,17 @@ cd ~/.claude/hud/ddotz-hud && npm install && npm run build
 ```
 
 ### 6. 설정 백업
-```bash
-mkdir -p ~/.claude/hud/.backup
-cp ~/.claude/settings.json ~/.claude/hud/.backup/settings.json.$(date +%Y%m%d_%H%M%S) 2>/dev/null || true
-```
+- 사용자의 `.claude` 설정 폴더(Windows: `%USERPROFILE%\.claude`) 내 `settings.json`을 `hud/.backup` 폴더에 타임스탬프와 함께 복사합니다.
 
 ### 7. settings.json 업데이트
-- Read `~/.claude/settings.json`
-- JSON 파싱
-- `statusLine` 키를 다음으로 설정:
+- 설정 파일(`settings.json`)을 읽어 JSON으로 파싱합니다.
+- `statusLine` 키를 다음으로 설정합니다:
+  - `command` 경로는 사용자의 OS에 맞는 절대경로로 기입합니다. (예: `node C:\Users\Username\.claude\hud\ddotz-hud\dist\index.js` 또는 `node /Users/name/.claude/hud/ddotz-hud/dist/index.js`)
 ```json
 {
   "statusLine": {
     "type": "command",
-    "command": "node ~/.claude/hud/ddotz-hud/dist/index.js",
+    "command": "node {OS에_맞는_절대경로}/ddotz-hud/dist/index.js",
     "padding": 0
   }
 }
@@ -100,9 +90,9 @@ cp ~/.claude/settings.json ~/.claude/hud/.backup/settings.json.$(date +%Y%m%d_%H
 ```text
 ✅ HUD 설정 완료!
 
-설치 위치: ~/.claude/hud/ddotz-hud
-설정 파일: ~/.claude/settings.json
-(선택 사항인 API 키가 입력된 경우 `~/.claude/ddotz-hud-config.json`에 저장됨)
+설치 위치: {HUD_경로}
+설정 파일: {SETTINGS_경로}
+(선택 사항인 API 키가 입력된 경우 `ddotz-hud-config.json`에 저장됨)
 
 ⚠️ Claude Code를 재시작하면 새 statusline이 적용됩니다.
 ```
@@ -112,27 +102,20 @@ cp ~/.claude/settings.json ~/.claude/hud/.backup/settings.json.$(date +%Y%m%d_%H
 `/dtz:hud update` 실행 시:
 
 ### 1. 설치 확인
-```bash
-ls ~/.claude/hud/ddotz-hud/package.json
-```
+- `ddotz-hud/package.json` 파일 존재 여부를 확인합니다.
 - 없으면: "HUD가 설치되지 않았습니다. `/dtz:hud setup`을 먼저 실행하세요."
 
-### 2. 업데이트
+### 2. 업데이트 및 재빌드
+- 해당 경로로 이동하여 업데이트를 실행합니다.
 ```bash
-cd ~/.claude/hud/ddotz-hud && git pull
+git pull && npm install && npm run build
 ```
 
-### 3. 재빌드
-```bash
-cd ~/.claude/hud/ddotz-hud && npm install && npm run build
-```
+### 3. 버전 확인
+- `package.json`에서 `version` 필드를 추출합니다.
 
-### 4. 버전 확인
-- Read `~/.claude/hud/ddotz-hud/package.json`
-- version 필드 추출
-
-### 5. 완료 메시지
-```
+### 4. 완료 메시지
+```text
 ✅ HUD 업데이트 완료!
 
 버전: {version}
@@ -144,25 +127,18 @@ cd ~/.claude/hud/ddotz-hud && npm install && npm run build
 
 `/dtz:hud status` 실행 시:
 
-### 1. 설치 상태 확인
-```bash
-ls ~/.claude/hud/ddotz-hud/package.json 2>/dev/null && echo "INSTALLED" || echo "NOT_INSTALLED"
-```
+### 1. 연결 정보 확인
+- `ddotz-hud/package.json` 파일의 존재 여부로 설치 상태 파악
+- 설치되어 있다면 파일에서 `{version}` 추출
+- `settings.json` 에서 `statusLine.command` 추출
 
-### 2. 버전 확인 (설치된 경우)
-- Read `~/.claude/hud/ddotz-hud/package.json`
-
-### 3. 설정 확인
-- Read `~/.claude/settings.json`
-- statusLine 키 확인
-
-### 4. 상태 출력
-```
+### 2. 상태 출력
+```text
 📊 HUD Status
 ─────────────────────────────────────
 Installation: ✅ Installed (또는 ❌ Not Installed)
 Version: {version}
-Location: ~/.claude/hud/ddotz-hud
+Location: {HUD_경로}
 
 Settings: ✅ Configured (또는 ❌ Not Configured)
 Command: {statusLine.command}
@@ -178,17 +154,13 @@ Command: {statusLine.command}
   - Options: "설정만 제거", "설정 + 파일 모두 삭제", "취소"
 
 ### 2. 설정 제거
-- Read `~/.claude/settings.json`
-- `statusLine` 키 삭제
-- 파일 저장
+- `settings.json`을 읽고 `statusLine` 키를 삭제 후 저장합니다.
 
 ### 3. 파일 삭제 (선택한 경우)
-```bash
-rm -rf ~/.claude/hud/ddotz-hud
-```
+- 선택에 따라 `ddotz-hud` 폴더 전체를 재귀적으로 삭제합니다.
 
 ### 4. 완료 메시지
-```
+```text
 ✅ HUD 설정이 제거되었습니다.
 
 ⚠️ Claude Code를 재시작하면 기본 statusline으로 돌아갑니다.
