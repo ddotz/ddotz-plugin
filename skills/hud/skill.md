@@ -189,4 +189,4 @@ Opus 4.5 | ⎇ main v1.2.0 | ~/project
 **Line 2**: 프로필 | Rate Limit | Context % | 비용 | 시간 | 에이전트 | 백그라운드
 
 ---
-*DTZ HUD Skill v1.0.0*
+*DTZ HUD Skill v1.1.0*

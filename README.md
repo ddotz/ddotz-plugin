@@ -96,9 +96,14 @@ Create `.dtz/config.json` in your project:
 
 ## Version
 
-2.4.2
+2.4.4
 
 ## Changelog
+
+### v2.4.4
+- Enhance `/dtz:hud`: Add interactive setup prompt for API Rate Limits (Session Key & Org ID)
+- Enhance `/dtz:hud`: Support cross-platform setup commands (Windows compatibility)
+- Enhance `/dtz:hud`: Secure credentials via `~/.claude/ddotz-hud-config.json` or Environment variables
 
 ### v2.4.3
 - Improve `/dtz:sa` skill: add Step 4 combo execution (추천 → 보조 순서로 조합 실행)
