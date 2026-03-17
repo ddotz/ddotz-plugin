@@ -49,6 +49,21 @@ Claude Code statusline 설정 (ddotz-hud).
 
 > 💡 모든 활성 스킬(superpowers, OMC, dtz 등)을 대상으로 추천합니다.
 
+### /dtz:korean-text-layout
+한글 UI 텍스트의 줄바꿈, 괄호 처리, 텍스트 잘림 방지를 위한 CSS 전략.
+
+| Command | Description |
+|---------|-------------|
+| `/dtz:korean-text-layout` | 한글 텍스트 레이아웃 가이드 및 체크리스트 |
+
+| 원칙 | 해결책 |
+|------|--------|
+| **의미론적 줄바꿈** | `wordBreak: "keep-all"` — 어절 단위 줄바꿈 |
+| **괄호 한 줄 유지** | `whiteSpace: "nowrap"` + ellipsis |
+| **레이아웃 벗어남 방지** | `clamp()`, `minWidth: 0`, 너비 제한 |
+
+> 💡 한글 UI 컴포넌트 작성/리뷰 시 이 스킬을 참조하여 텍스트 가독성 문제를 예방합니다.
+
 ### /dtz:karpathy-guidelines
 LLM 코딩 실수를 줄이기 위한 행동 가이드라인. [Andrej Karpathy의 관찰](https://x.com/karpathy/status/2015883857489522876)에서 파생된 4가지 원칙입니다.
 
