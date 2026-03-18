@@ -1,8 +1,8 @@
 ---
 name: sa
-version: 2.2.0
+version: 2.4.5
 description: 현재 활성화된 스킬 중 상황에 맞는 최적의 스킬을 추천합니다
-model: haiku
+model: sonnet
 allowed-tools: []
 tags: [advisor, skill, recommendation]
 category: utility

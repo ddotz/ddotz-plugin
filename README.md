@@ -96,9 +96,12 @@ Create `.dtz/config.json` in your project:
 
 ## Version
 
-2.4.4
+2.4.5
 
 ## Changelog
+
+### v2.4.5
+- Fix `/dtz:sa`: change model from haiku to sonnet to prevent context limit errors on large conversations (200k+)
 
 ### v2.4.4
 - Enhance `/dtz:hud`: Add interactive setup prompt for API Rate Limits (Session Key & Org ID)
