@@ -1,13 +1,15 @@
 {
-  "PreToolUse": [
-    {
-      "matcher": "Read|Edit|Write",
-      "hooks": [
-        {
-          "type": "command",
-          "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/taste-ko-inject.sh\""
-        }
-      ]
-    }
-  ]
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/taste-ko-inject.sh\""
+          }
+        ]
+      }
+    ]
+  }
 }
