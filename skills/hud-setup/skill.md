@@ -1,5 +1,5 @@
 ---
-name: hud
+name: hud-setup
 description: Configure Claude Code statusline with ddotz-hud
 triggers:
   - hud
@@ -16,15 +16,15 @@ Claude Code의 statusline을 ddotz-hud로 설정합니다.
 
 | Command | Description |
 |---------|-------------|
-| `/dtz:hud` | HUD 설치 및 설정 (setup과 동일) |
-| `/dtz:hud setup` | HUD 설치 및 설정 |
-| `/dtz:hud update` | 최신 버전으로 업데이트 |
-| `/dtz:hud status` | 현재 설정 상태 확인 |
-| `/dtz:hud reset` | HUD 설정 제거 |
+| `/dtz:hud-setup` | HUD 설치 및 설정 (setup과 동일) |
+| `/dtz:hud-setup setup` | HUD 설치 및 설정 |
+| `/dtz:hud-setup update` | 최신 버전으로 업데이트 |
+| `/dtz:hud-setup status` | 현재 설정 상태 확인 |
+| `/dtz:hud-setup reset` | HUD 설정 제거 |
 
 ## Setup Procedure
 
-`/dtz:hud` 또는 `/dtz:hud setup` 실행 시:
+`/dtz:hud-setup` 또는 `/dtz:hud-setup setup` 실행 시:
 
 ### 1. 환경 확인
 ```bash
@@ -99,11 +99,11 @@ npm install && npm run build
 
 ## Update Procedure
 
-`/dtz:hud update` 실행 시:
+`/dtz:hud-setup update` 실행 시:
 
 ### 1. 설치 확인
 - `ddotz-hud/package.json` 파일 존재 여부를 확인합니다.
-- 없으면: "HUD가 설치되지 않았습니다. `/dtz:hud setup`을 먼저 실행하세요."
+- 없으면: "HUD가 설치되지 않았습니다. `/dtz:hud-setup setup`을 먼저 실행하세요."
 
 ### 2. 업데이트 및 재빌드
 - 해당 경로로 이동하여 업데이트를 실행합니다.
@@ -125,7 +125,7 @@ git pull && npm install && npm run build
 
 ## Status Procedure
 
-`/dtz:hud status` 실행 시:
+`/dtz:hud-setup status` 실행 시:
 
 ### 1. 연결 정보 확인
 - `ddotz-hud/package.json` 파일의 존재 여부로 설치 상태 파악
@@ -147,7 +147,7 @@ Command: {statusLine.command}
 
 ## Reset Procedure
 
-`/dtz:hud reset` 실행 시:
+`/dtz:hud-setup reset` 실행 시:
 
 ### 1. 사용자 확인
 - AskUserQuestion: "HUD 설정을 제거하시겠습니까?"

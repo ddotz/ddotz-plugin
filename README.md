@@ -4,17 +4,17 @@ HUD configuration and web content tools for Claude Code.
 
 ## Features
 
-### /dtz:hud - Statusline Configuration
+### /dtz:hud-setup - Statusline Configuration
 
 Configure Claude Code statusline with ddotz-hud for enhanced status display.
 
 | Command | Description |
 |---------|-------------|
-| `/dtz:hud` | Install and setup HUD |
-| `/dtz:hud setup` | Install and setup HUD |
-| `/dtz:hud update` | Update to latest version |
-| `/dtz:hud status` | Check current configuration |
-| `/dtz:hud reset` | Remove HUD settings |
+| `/dtz:hud-setup` | Install and setup HUD |
+| `/dtz:hud-setup setup` | Install and setup HUD |
+| `/dtz:hud-setup update` | Update to latest version |
+| `/dtz:hud-setup status` | Check current configuration |
+| `/dtz:hud-setup reset` | Remove HUD settings |
 
 **HUD Layout**:
 ```
@@ -96,17 +96,14 @@ Create `.dtz/config.json` in your project:
 
 ## Version
 
-2.4.5
+2.4.4
 
 ## Changelog
 
-### v2.4.5
-- Fix `/dtz:sa`: change model from haiku to sonnet to prevent context limit errors on large conversations (200k+)
-
 ### v2.4.4
-- Enhance `/dtz:hud`: Add interactive setup prompt for API Rate Limits (Session Key & Org ID)
-- Enhance `/dtz:hud`: Support cross-platform setup commands (Windows compatibility)
-- Enhance `/dtz:hud`: Secure credentials via `~/.claude/ddotz-hud-config.json` or Environment variables
+- Enhance `/dtz:hud-setup`: Add interactive setup prompt for API Rate Limits (Session Key & Org ID)
+- Enhance `/dtz:hud-setup`: Support cross-platform setup commands (Windows compatibility)
+- Enhance `/dtz:hud-setup`: Secure credentials via `~/.claude/ddotz-hud-config.json` or Environment variables
 
 ### v2.4.3
 - Improve `/dtz:sa` skill: add Step 4 combo execution (추천 → 보조 순서로 조합 실행)
