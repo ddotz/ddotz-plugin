@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "ddotz",
-  "description": "HUD configuration and web content tools for Claude Code",
+  "description": "HUD configuration, web content tools, and Korean design skills for Claude Code",
   "owner": {
     "name": "ddotz"
   },
@@ -9,14 +9,14 @@
     {
       "name": "dtz",
       "description": "HUD statusline and smart web content workflow",
-      "version": "2.4.5",
+      "version": "2.5.0",
       "author": {
         "name": "ddotz"
       },
       "source": "./",
       "category": "productivity",
       "homepage": "https://github.com/ddotz/ddotz-plugin",
-      "tags": ["hud", "statusline", "workflow", "web-fetch", "jina-reader"]
+      "tags": ["hud", "statusline", "workflow", "web-fetch", "jina-reader", "taste", "korean", "design"]
     }
   ]
 }
