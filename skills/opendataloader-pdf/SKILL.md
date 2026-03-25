@@ -79,9 +79,53 @@ nohup opendataloader-pdf-hybrid --port 5002 --force-ocr --ocr-lang "ko,en" > /tm
 echo $! > /tmp/opendataloader-hybrid.pid
 ```
 
-### Step 3: 결과 읽기
+### Step 3: 이미지/차트 페이지 식별
 
-추출된 파일을 Read 도구로 읽어 사용자에게 분석 결과를 전달한다.
+추출된 JSON에서 이미지/차트가 포함된 페이지를 식별한다.
+
+```bash
+# JSON에서 Image 타입 요소가 있는 페이지 번호 추출
+python3 -c "
+import json, sys, glob
+for f in glob.glob('/tmp/opendataloader-output/*.json'):
+    data = json.load(open(f))
+    pages = set()
+    def find_images(node):
+        if isinstance(node, dict):
+            if node.get('type') in ('Image', 'Figure', 'Chart'):
+                pages.add(node.get('page', 0))
+            for v in node.values():
+                find_images(v)
+        elif isinstance(node, list):
+            for item in node:
+                find_images(item)
+    find_images(data)
+    if pages:
+        print(f'이미지/차트 포함 페이지: {sorted(pages)}')
+    else:
+        print('이미지/차트 없음')
+"
+```
+
+### Step 4: 복합 분석 (텍스트 + 시각)
+
+**핵심 전략: OpenDataLoader로 텍스트/테이블, Claude Read로 이미지/차트**
+
+1. **텍스트/테이블**: Step 2에서 추출한 JSON/Markdown 파일을 Read 도구로 읽는다 (토큰 효율적).
+2. **이미지/차트**: Step 3에서 식별한 페이지만 Claude Code Read 도구로 직접 읽는다:
+
+```
+Read(file_path="INPUT_FILE.pdf", pages="3,7,12")
+```
+
+이렇게 하면:
+- 텍스트/테이블 → OpenDataLoader 추출본 사용 (토큰 절약, 구조 보존)
+- 이미지/차트 → 해당 페이지만 멀티모달로 직접 확인 (시각적 해석)
+- 전체 PDF를 Read로 로드하는 것 대비 **토큰 소비 최소화**
+
+### Step 5: 결과 종합
+
+추출된 텍스트/테이블 데이터와 이미지/차트 시각 분석을 종합하여 사용자에게 전달한다.
 
 ```bash
 ls -la /tmp/opendataloader-output/
