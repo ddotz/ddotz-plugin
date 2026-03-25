@@ -191,4 +191,4 @@ opendataloader-pdf --hybrid docling-fast input.pdf -o output/ -f json,markdown  
 3. **PDF 추출**: `/dtz:opendataloader-pdf`로 PDF에서 구조화된 데이터 추출
 
 ---
-*DTZ Plugin v2.6.0*
+*DTZ Plugin v2.7.0*
