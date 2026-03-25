@@ -79,57 +79,80 @@ nohup opendataloader-pdf-hybrid --port 5002 --force-ocr --ocr-lang "ko,en" > /tm
 echo $! > /tmp/opendataloader-hybrid.pid
 ```
 
-### Step 3: 이미지/차트 페이지 식별
+### Step 3: 이미지/차트 위치 맵 추출
 
-추출된 JSON에서 이미지/차트가 포함된 페이지를 식별한다.
+추출된 JSON에서 이미지/차트 요소의 **위치(페이지, 바운딩 박스)와 주변 컨텍스트**를 맵으로 저장한다.
 
 ```bash
-# JSON에서 Image 타입 요소가 있는 페이지 번호 추출
 python3 -c "
-import json, sys, glob
+import json, glob
+
 for f in glob.glob('/tmp/opendataloader-output/*.json'):
     data = json.load(open(f))
-    pages = set()
-    def find_images(node):
+    visuals = []
+    def find_visuals(node, parent_text=''):
         if isinstance(node, dict):
             if node.get('type') in ('Image', 'Figure', 'Chart'):
-                pages.add(node.get('page', 0))
+                visuals.append({
+                    'type': node.get('type'),
+                    'page': node.get('page'),
+                    'bbox': {k: node.get(k) for k in ('left','bottom','right','top') if k in node},
+                    'context': parent_text[:200]
+                })
+            text = node.get('text', parent_text)
             for v in node.values():
-                find_images(v)
+                find_visuals(v, text)
         elif isinstance(node, list):
             for item in node:
-                find_images(item)
-    find_images(data)
-    if pages:
-        print(f'이미지/차트 포함 페이지: {sorted(pages)}')
+                find_visuals(item, parent_text)
+    find_visuals(data)
+
+    if visuals:
+        # 위치 맵을 파일로 저장
+        out = f.replace('.json', '.visuals.json')
+        with open(out, 'w') as vf:
+            json.dump(visuals, vf, ensure_ascii=False, indent=2)
+        print(f'시각 요소 {len(visuals)}개 발견 → {out}')
+        for v in visuals:
+            print(f'  p.{v[\"page\"]} [{v[\"type\"]}] bbox={v[\"bbox\"]} context: {v[\"context\"][:80]}...')
     else:
-        print('이미지/차트 없음')
+        print('이미지/차트 없음 → OpenDataLoader 추출본만으로 충분')
 "
 ```
 
-### Step 4: 복합 분석 (텍스트 + 시각)
+### Step 4: 복합 분석 (OpenDataLoader + Claude Read 결합)
 
-**핵심 전략: OpenDataLoader로 텍스트/테이블, Claude Read로 이미지/차트**
+**전략: 전체는 OpenDataLoader, 시각 요소만 Read로 보완**
 
-1. **텍스트/테이블**: Step 2에서 추출한 JSON/Markdown 파일을 Read 도구로 읽는다 (토큰 효율적).
-2. **이미지/차트**: Step 3에서 식별한 페이지만 Claude Code Read 도구로 직접 읽는다:
+1. **텍스트/테이블**: Step 2의 Markdown/JSON을 Read로 읽는다. 이것이 분석의 기본 데이터.
+2. **시각 요소 확인**: Step 3에서 visuals.json이 생성된 경우에만, 해당 페이지를 Claude Read로 읽는다:
 
 ```
-Read(file_path="INPUT_FILE.pdf", pages="3,7,12")
+Read(file_path="INPUT_FILE.pdf", pages="3,7")
 ```
 
-이렇게 하면:
-- 텍스트/테이블 → OpenDataLoader 추출본 사용 (토큰 절약, 구조 보존)
-- 이미지/차트 → 해당 페이지만 멀티모달로 직접 확인 (시각적 해석)
-- 전체 PDF를 Read로 로드하는 것 대비 **토큰 소비 최소화**
+3. **결합**: 시각 요소의 바운딩 박스 위치를 기준으로, OpenDataLoader가 추출한 주변 텍스트와 Read로 확인한 시각 정보를 매칭한다.
 
-### Step 5: 결과 종합
+예시:
+```
+[OpenDataLoader] p.3: "그림 2. 2024년 매출 추이" (텍스트)
+[OpenDataLoader] p.3: bbox=(100,200,500,450) → Image 타입 (내용 해석 불가)
+[Claude Read]    p.3: 막대 차트, 1월~12월 매출 상승 추세, 6월 피크
+→ 결합: "그림 2. 2024년 매출 추이 — 막대 차트로 1월~12월 상승 추세, 6월 피크"
+```
 
-추출된 텍스트/테이블 데이터와 이미지/차트 시각 분석을 종합하여 사용자에게 전달한다.
+**핵심**: OpenDataLoader가 "여기에 이미지가 있다"는 위치와 캡션을 알려주고, Claude Read가 "이미지 안에 뭐가 있는지"를 해석한다. 두 정보를 바운딩 박스 기준으로 결합하면 완전한 문서 이해가 가능하다.
+
+### Step 5: 결과 전달
 
 ```bash
 ls -la /tmp/opendataloader-output/
 ```
+
+분석 결과를 사용자에게 전달할 때:
+- 시각 요소가 없으면 → OpenDataLoader Markdown만 사용 (토큰 최소)
+- 시각 요소가 있으면 → Markdown + 시각 해석 결합본 전달
+- visuals.json의 bbox/context로 "p.3 상단의 차트는 ~" 형태로 위치 기반 설명
 
 ## 로컬 모드 (fallback)
 
