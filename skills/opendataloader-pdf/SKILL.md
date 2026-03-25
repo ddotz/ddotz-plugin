@@ -30,9 +30,30 @@ PDF에서 구조화된 데이터를 추출하는 도구. 시스템에 설치 완
 
 ## 실행 절차 (항상 이 순서를 따른다)
 
+### Step 0: 페이지 수 확인 및 모드 결정
+
+```bash
+python3 -c "
+import subprocess, re
+result = subprocess.run(['opendataloader-pdf', 'INPUT_FILE', '-o', '/dev/null', '-f', 'text', '--pages', '1'], capture_output=True, text=True)
+pages = re.search(r'Number of pages: (\d+)', result.stderr or result.stdout)
+if pages:
+    n = int(pages.group(1))
+    print(f'pages={n}')
+    print('mode=hybrid' if n <= 100 else 'mode=local')
+else:
+    print('mode=local')
+"
+```
+
+- **100페이지 이하** → hybrid 모드 (Step 1로)
+- **100페이지 초과** → 로컬 모드 직접 실행 (Java CLI 타임아웃 버그로 hybrid 불안정)
+
+> v2.0.2 기준: `--hybrid-timeout 0` (무제한) 미지원. 서버는 대용량도 처리 가능하나 Java CLI가 30초에 끊김. 향후 버전에서 수정 예정.
+
 ### Step 1: hybrid 백엔드 서버 자동 시작
 
-PDF 추출 전에 **반드시** hybrid 서버가 실행 중인지 확인하고, 없으면 자동으로 띄운다.
+**100페이지 이하일 때만 실행.** hybrid 서버가 실행 중인지 확인하고, 없으면 자동으로 띄운다.
 
 ```bash
 # 서버가 이미 실행 중인지 확인
