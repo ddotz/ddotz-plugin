@@ -33,17 +33,37 @@ sudo ln -sfn /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk /Library/Java/Java
 
 Java가 이미 있으면 이 단계를 건너뛴다.
 
-### 3. opendataloader-pdf 설치 (없을 때만)
-
-opendataloader-pdf가 설치되어 있지 않으면:
+### 3. Maven 설치 (없을 때만)
 
 ```bash
-pip3 install -U "opendataloader-pdf[hybrid]" --break-system-packages
+which mvn 2>/dev/null || brew install maven
 ```
 
-이미 설치되어 있으면 이 단계를 건너뛴다.
+### 4. opendataloader-pdf 설치 (GitHub main 브랜치 빌드)
 
-### 4. 설치 검증
+PyPI 버전(2.0.2)은 hybrid 타임아웃 버그가 있으므로 **반드시 main 브랜치에서 빌드**해야 한다.
+
+```bash
+# 1. repo clone
+cd /tmp && rm -rf opendataloader-pdf-src
+git clone --depth 1 https://github.com/opendataloader-project/opendataloader-pdf.git opendataloader-pdf-src
+
+# 2. Java CLI JAR 빌드
+cd /tmp/opendataloader-pdf-src/java && mvn package -DskipTests -q
+
+# 3. README 복사 (monorepo 빌드 이슈 우회)
+cp /tmp/opendataloader-pdf-src/README.md /tmp/opendataloader-pdf-src/python/opendataloader-pdf/
+
+# 4. Python 패키지 설치
+pip3 install "/tmp/opendataloader-pdf-src/python/opendataloader-pdf[hybrid]" --break-system-packages --force-reinstall --ignore-installed certifi
+```
+
+설치 후 타임아웃 기본값이 0(무제한)인지 확인:
+```bash
+opendataloader-pdf --help 2>&1 | grep "Default: 0"
+```
+
+### 5. 설치 검증
 
 ```bash
 echo "=== Java ===" && java -version 2>&1 && echo "=== opendataloader-pdf ===" && opendataloader-pdf --help 2>&1 | head -3 && echo "=== hybrid server ===" && which opendataloader-pdf-hybrid && echo "=== SETUP COMPLETE ==="
@@ -51,7 +71,7 @@ echo "=== Java ===" && java -version 2>&1 && echo "=== opendataloader-pdf ===" &
 
 모든 항목이 정상 출력되면 완료.
 
-### 5. 결과 보고
+### 6. 결과 보고
 
 사용자에게 다음을 알려준다:
 
