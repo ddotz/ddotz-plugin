@@ -28,38 +28,71 @@ PDF에서 구조화된 데이터를 추출하는 도구. 시스템에 설치 완
 - **Python**: 시스템 Python 3.14 (--break-system-packages로 설치됨)
 - **CLI**: `opendataloader-pdf`, `opendataloader-pdf-hybrid`
 
-## 기본 사용법 (CLI)
+## 실행 절차 (항상 이 순서를 따른다)
+
+### Step 1: hybrid 백엔드 서버 자동 시작
+
+PDF 추출 전에 **반드시** hybrid 서버가 실행 중인지 확인하고, 없으면 자동으로 띄운다.
 
 ```bash
-# 단순 변환 (로컬 모드, 빠름)
-opendataloader-pdf input.pdf -o output/ -f json,markdown
-
-# 특정 페이지만
-opendataloader-pdf input.pdf -o output/ -f json --pages 1,3,5-7
+# 서버가 이미 실행 중인지 확인
+curl -s -o /dev/null -w "%{http_code}" http://localhost:5002/health 2>/dev/null || echo "DOWN"
 ```
 
-## Hybrid 모드 (고정확도, 권장)
-
-hybrid 모드는 AI 백엔드(Docling)를 사용하여 정확도 0.90 달성.
-
-### 방법 1: 백엔드 서버 별도 실행
+- 응답이 `200`이면 → 서버 실행 중. Step 2로 진행.
+- `DOWN`이거나 다른 응답이면 → 서버를 백그라운드로 시작:
 
 ```bash
-# 터미널 1: 백엔드 서버 시작 (첫 실행 시 모델 다운로드로 시간 소요)
-opendataloader-pdf-hybrid --port 5002
-
-# 터미널 2: hybrid 모드로 PDF 처리
-opendataloader-pdf --hybrid docling-fast input.pdf -o output/ -f json,markdown
+nohup opendataloader-pdf-hybrid --port 5002 > /tmp/opendataloader-hybrid.log 2>&1 &
+echo $! > /tmp/opendataloader-hybrid.pid
 ```
 
-### 방법 2: 한국어 OCR 포함 (스캔 문서)
+서버 시작 후 ready 상태까지 대기:
 
 ```bash
-# 백엔드에 OCR 활성화
-opendataloader-pdf-hybrid --port 5002 --force-ocr --ocr-lang "ko,en"
+for i in $(seq 1 30); do
+  if curl -s -o /dev/null -w "%{http_code}" http://localhost:5002/health 2>/dev/null | grep -q "200"; then
+    echo "Hybrid server ready"
+    break
+  fi
+  sleep 2
+done
+```
 
-# 변환
-opendataloader-pdf --hybrid docling-fast scanned.pdf -o output/ -f json,markdown
+> 첫 실행 시 AI 모델 다운로드로 1-2분 소요될 수 있다. 로그 확인: `tail -f /tmp/opendataloader-hybrid.log`
+
+### Step 2: PDF 추출 (hybrid 모드)
+
+서버가 준비되면 hybrid 모드로 추출한다. 출력 디렉토리는 `/tmp/opendataloader-output/`을 기본으로 사용.
+
+```bash
+opendataloader-pdf --hybrid docling-fast INPUT_FILE -o /tmp/opendataloader-output/ -f json,markdown
+```
+
+한국어 OCR이 필요한 스캔 문서의 경우, 서버를 OCR 모드로 재시작:
+
+```bash
+# 기존 서버 종료
+kill $(cat /tmp/opendataloader-hybrid.pid 2>/dev/null) 2>/dev/null
+# OCR 모드로 재시작
+nohup opendataloader-pdf-hybrid --port 5002 --force-ocr --ocr-lang "ko,en" > /tmp/opendataloader-hybrid.log 2>&1 &
+echo $! > /tmp/opendataloader-hybrid.pid
+```
+
+### Step 3: 결과 읽기
+
+추출된 파일을 Read 도구로 읽어 사용자에게 분석 결과를 전달한다.
+
+```bash
+ls -la /tmp/opendataloader-output/
+```
+
+## 로컬 모드 (fallback)
+
+hybrid 서버가 시작되지 않거나 실패하면 로컬 모드로 fallback:
+
+```bash
+opendataloader-pdf INPUT_FILE -o /tmp/opendataloader-output/ -f json,markdown --hybrid-fallback
 ```
 
 ## Python API
