@@ -184,11 +184,28 @@ opendataloader-pdf --hybrid docling-fast input.pdf -o output/ -f json,markdown  
 
 > 💡 hybrid 모드 첫 실행 시 AI 모델 다운로드로 시간이 소요됩니다. 이후엔 캐시됩니다.
 
+### /dtz:autoresearch
+Apple Silicon(MLX) 자율 연구 실험 루프. Karpathy의 autoresearch를 MLX로 포팅한 프로젝트.
+
+| Command | Description |
+|---------|-------------|
+| `/dtz:autoresearch` | 환경 확인 후 실험 루프 시작 |
+
+**핵심 규칙:**
+- `train.py`만 수정 — 나머지 파일은 읽기 전용
+- 5분 고정 훈련 예산 (wall clock)
+- 메트릭: `val_bpb` (낮을수록 좋음)
+- 루프: 수정 → 커밋 → 훈련 → 결과 확인 → keep 또는 revert
+- 수동 중단 전까지 자율적으로 반복
+
+> 💡 최초 실행 시 `~/autoresearch-mlx` 존재 여부, uv, 데이터 준비 상태를 자동 확인합니다.
+
 ## Best Practices
 
 1. **HUD 설정**: `/dtz:hud-setup`로 향상된 statusline 설정
 2. **웹 리서치**: `/dtz:web-fetch`로 정적/동적 페이지를 상황에 맞게 가져오기
 3. **PDF 추출**: `/dtz:opendataloader-pdf`로 PDF에서 구조화된 데이터 추출
+4. **자율 연구**: `/dtz:autoresearch`로 MLX 훈련 실험 자동화
 
 ---
-*DTZ Plugin v2.7.0*
+*DTZ Plugin v2.8.0*
