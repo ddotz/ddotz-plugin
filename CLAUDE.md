@@ -185,27 +185,33 @@ opendataloader-pdf --hybrid docling-fast input.pdf -o output/ -f json,markdown  
 > 💡 hybrid 모드 첫 실행 시 AI 모델 다운로드로 시간이 소요됩니다. 이후엔 캐시됩니다.
 
 ### /dtz:autoresearch
-Apple Silicon(MLX) 자율 연구 실험 루프. Karpathy의 autoresearch를 MLX로 포팅한 프로젝트.
+도메인 무관 자율 실험 루프. 코드 수정 → 벤치마크 → keep/revert를 자율 반복.
+구조화된 JSONL 로그, MAD confidence scoring, ASI(학습 보존) 지원.
 
 | Command | Description |
 |---------|-------------|
-| `/dtz:autoresearch` | 환경 확인 후 실험 루프 시작 |
+| `/dtz:autoresearch` | 실험 루프 시작 또는 재개 |
+| `/dtz:autoresearch init` | 새 도메인 대화형 셋업 (MLX 자동감지 건너뜀) |
 
-**핵심 규칙:**
-- `train.py`만 수정 — 나머지 파일은 읽기 전용
-- 5분 고정 훈련 예산 (wall clock)
-- 메트릭: `val_bpb` (낮을수록 좋음)
-- 루프: 수정 → 커밋 → 훈련 → 결과 확인 → keep 또는 revert
-- 수동 중단 전까지 자율적으로 반복
+**MLX 프리셋:** `~/autoresearch-mlx` 감지 시 자동 적용 (val_bpb, 5분 예산, train.py만 수정).
 
-> 💡 최초 실행 시 `~/autoresearch-mlx` 존재 여부, uv, 데이터 준비 상태를 자동 확인합니다.
+**범용 모드:** 대화형으로 목표/메트릭/벤치마크/편집범위를 수집하여 `.autoresearch/` 자동 생성.
+
+**핵심 기능:**
+- `METRIC name=value` 표준 프로토콜
+- `experiments.jsonl` 구조화 로그 (append-only)
+- MAD 기반 confidence scoring (노이즈 판별)
+- ASI: revert해도 학습 내용 보존
+- `checks.sh`: 벤치마크 후 정합성 검사 (선택)
+- `ideas.md`: 아이디어 백로그 (컨텍스트 리셋 후에도 유지)
+- 컨텍스트 복원: config + session.md + JSONL로 fresh agent가 이어받기 가능
 
 ## Best Practices
 
 1. **HUD 설정**: `/dtz:hud-setup`로 향상된 statusline 설정
 2. **웹 리서치**: `/dtz:web-fetch`로 정적/동적 페이지를 상황에 맞게 가져오기
 3. **PDF 추출**: `/dtz:opendataloader-pdf`로 PDF에서 구조화된 데이터 추출
-4. **자율 연구**: `/dtz:autoresearch`로 MLX 훈련 실험 자동화
+4. **자율 실험**: `/dtz:autoresearch`로 도메인 무관 실험 자동화
 
 ---
 *DTZ Plugin v2.8.0*
