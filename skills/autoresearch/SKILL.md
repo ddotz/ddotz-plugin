@@ -54,17 +54,50 @@ If `~/autoresearch-mlx/train.py` exists:
 
 If MLX not detected:
 
-1. Ask the user these questions one at a time:
-   - **What are you optimizing?** (e.g., "reduce bundle size", "improve test speed", "lower training loss")
-   - **What is the primary metric?** Name, unit, direction (lower/higher is better)
-   - **What command runs the benchmark?** (must output `METRIC name=value` lines to stdout)
-   - **Which files can be edited?** (glob patterns, e.g., `src/**/*.ts`, `train.py`)
-   - **Time budget per experiment?** (minutes, default: 5)
-   - **Correctness checks?** (optional command — tests, types, lint)
+**Step 0: Project Analysis & Recommendation**
 
-2. Create `.autoresearch/` directory with all files (→ Init File Generation)
-3. Run baseline experiment
-4. → Start Experiment Loop
+Before asking questions, analyze the project to generate smart defaults:
+
+| Signal | Recommendation |
+|--------|---------------|
+| `package.json` + bundler config (webpack, vite, esbuild) | **번들 크기 최적화** — metric: `bundle_kb`, direction: lower, benchmark: `npm run build && stat -f%z dist/index.js` |
+| `package.json` + test config (jest, vitest, pytest) | **테스트 속도 최적화** — metric: `test_duration_s`, direction: lower, benchmark: `time npm test` |
+| `train.py` or `*.ipynb` + ML deps (torch, tensorflow, jax) | **훈련 loss 최적화** — metric: `val_loss`, direction: lower, benchmark: `python train.py` |
+| `Dockerfile` or `docker-compose.yml` | **빌드 시간 최적화** — metric: `build_duration_s`, direction: lower, benchmark: `time docker build .` |
+| `lighthouse` config or `next.config.*` | **Core Web Vitals 최적화** — metric: `lcp_ms`, direction: lower, benchmark: `npx lighthouse --output=json` |
+| `*.rs` + `Cargo.toml` | **컴파일 시간 최적화** — metric: `compile_duration_s`, direction: lower, benchmark: `time cargo build --release` |
+| `go.mod` + benchmarks | **벤치마크 성능** — metric: `ns_per_op`, direction: lower, benchmark: `go test -bench=. -count=3` |
+
+Present the recommendation to the user:
+
+> "프로젝트를 분석했습니다. `package.json`과 vitest 설정을 감지했어요.
+> **추천: 테스트 속도 최적화**
+> - 메트릭: `test_duration_s` (lower is better)
+> - 벤치마크: `time npx vitest run`
+> - 편집 범위: `src/**/*.ts`
+> - 정합성 검사: `npx tsc --noEmit`
+>
+> 이대로 진행할까요? 아니면 다른 목표가 있으시면 말씀해주세요."
+
+If user accepts → fill defaults and proceed to Step 1 (confirm/adjust each).
+If user declines → proceed to Step 1 with blank defaults.
+
+**Step 1: Interactive Questions (with smart defaults)**
+
+Ask one at a time. Show the recommended default in parentheses when available:
+
+1. **What are you optimizing?** (추천: `<recommendation>`)
+2. **What is the primary metric?** Name, unit, direction (추천: `<metric>`, `<direction>`)
+3. **What command runs the benchmark?** Must output `METRIC name=value` to stdout (추천: `<command>`)
+4. **Which files can be edited?** Glob patterns (추천: `<scope>`)
+5. **Time budget per experiment?** Minutes, default: 5
+6. **Correctness checks?** Optional — tests, types, lint (추천: `<checks>`)
+
+User can accept defaults by pressing enter or override with their own value.
+
+**Step 2:** Create `.autoresearch/` directory with all files (→ Init File Generation)
+**Step 3:** Run baseline experiment
+**Step 4:** → Start Experiment Loop
 
 ## Init File Generation
 
