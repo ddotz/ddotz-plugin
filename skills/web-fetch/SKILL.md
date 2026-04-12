@@ -1,6 +1,6 @@
 ---
 name: web-fetch
-description: Smart web content fetching with Jina Reader (default) and Playwriter/Playwright fallback for dynamic pages
+description: Smart web content fetching with Jina Reader (default) and Playwright fallback for dynamic pages
 model: sonnet
 autoInvoke: true
 triggers:
@@ -59,8 +59,8 @@ grep -q "### Web Fetch Strategy" ~/.claude/CLAUDE.md 2>/dev/null && echo "ALREAD
   → URL: https://r.jina.ai/{encoded_url}
   → WebFetch 도구로 호출
   ↓ 실패 또는 동적 페이지
-2차: Playwriter (MCP)
-  → mcp__playwriter__execute 사용
+2차: Playwright (MCP)
+  → Playwright 플러그인 사용
   → JavaScript 렌더링 필요 시
   ↓ 실패 또는 미설치
 3차: Playwright (로컬 fallback)
@@ -69,7 +69,7 @@ grep -q "### Web Fetch Strategy" ~/.claude/CLAUDE.md 2>/dev/null && echo "ALREAD
 | Page Type | Domains/Patterns | Strategy |
 |-----------|------------------|----------|
 | Static | medium.com, dev.to, docs.*, wikipedia.org, /blog/, /article/, /docs/ | Jina Reader |
-| Dynamic | twitter.com, x.com, app.*, dashboard.*, /app/, /feed/ | Playwriter |
+| Dynamic | twitter.com, x.com, app.*, dashboard.*, /app/, /feed/ | Playwright |
 
 **적용 시점:**
 - URL에서 정보 요청 시 ("이 페이지 읽어줘", "URL 내용 가져와")
@@ -86,7 +86,7 @@ grep -q "### Web Fetch Strategy" ~/.claude/CLAUDE.md 2>/dev/null && echo "ALREAD
    └─ ~/.claude/CLAUDE.md
 
 이제 모든 프로젝트에서 웹 콘텐츠 요청 시 자동으로 적용됩니다:
-- Jina Reader (기본) → Playwriter → Playwright
+- Jina Reader (기본) → Playwright → Playwright
 ```
 
 **이미 설정된 경우:**
@@ -101,7 +101,7 @@ grep -q "### Web Fetch Strategy" ~/.claude/CLAUDE.md 2>/dev/null && echo "ALREAD
 ```
 1차: Jina Reader (정적 페이지 또는 기본)
   ↓ 실패 또는 동적 페이지
-2차: Playwriter (MCP 사용 가능 시)
+2차: Playwright (MCP 사용 가능 시)
   ↓ 실패 또는 미설치
 3차: Playwright (로컬 설치 시)
   ↓ 실패
@@ -114,7 +114,7 @@ grep -q "### Web Fetch Strategy" ~/.claude/CLAUDE.md 2>/dev/null && echo "ALREAD
 |---------|-------------|
 | `/dtz:web-fetch {url}` | URL에서 콘텐츠 가져오기 (자동 전략) |
 | `/dtz:web-fetch {url} --jina` | Jina Reader 강제 사용 |
-| `/dtz:web-fetch {url} --playwriter` | Playwriter 강제 사용 |
+| `/dtz:web-fetch {url} --playwright` | Playwright 강제 사용 |
 | `/dtz:web-fetch {url} --playwright` | Playwright 강제 사용 |
 | `/dtz:web-fetch detect {url}` | 페이지 타입만 감지 (dry-run) |
 | `/dtz:web-fetch setup` | 전역 CLAUDE.md에 자동 규칙 설정 |
@@ -152,10 +152,10 @@ grep -q "### Web Fetch Strategy" ~/.claude/CLAUDE.md 2>/dev/null && echo "ALREAD
 │         ↓                                           │
 │  ┌─────────────┐    ┌─────────────┐                │
 │  │   Static    │    │   Dynamic   │                │
-│  │ Jina Reader │    │ Playwriter  │                │
+│  │ Jina Reader │    │ Playwright  │                │
 │  └─────────────┘    └─────────────┘                │
 │         ↓ 실패              ↓ 실패                  │
-│     Playwriter         Playwright                   │
+│     Playwright         Playwright                   │
 │         ↓ 실패              ↓ 실패                  │
 │     Playwright           Error                      │
 └─────────────────────────────────────────────────────┘
@@ -239,12 +239,12 @@ Page Type: static
 
 **실패 시:** Strategy 2로 fallback
 
-#### Strategy 2: Playwriter (동적 페이지 또는 Jina 실패)
+#### Strategy 2: Playwright (동적 페이지 또는 Jina 실패)
 
-**Playwriter MCP 호출:**
+**Playwright MCP 호출:**
 
 ```javascript
-// mcp__playwriter__execute 사용
+// Playwright 플러그인 사용
 const code = `
 await page.goto('${url}', { waitUntil: 'networkidle' });
 await page.waitForTimeout(2000); // 동적 콘텐츠 로드 대기
@@ -275,11 +275,11 @@ console.log(JSON.stringify({ title, content: content.substring(0, 50000) }));
 
 **성공 시:**
 ```
-✅ 웹 콘텐츠를 가져왔습니다 (Playwriter)
+✅ 웹 콘텐츠를 가져왔습니다 (Playwright)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 URL: {url}
 Title: {title}
-Strategy: playwriter
+Strategy: playwright
 Page Type: dynamic
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -350,7 +350,7 @@ URL: {url}
 
 시도한 전략:
 ├─ Jina Reader: {error_message}
-├─ Playwriter: {error_message}
+├─ Playwright: {error_message}
 └─ Playwright: {error_message}
 
 가능한 원인:
@@ -360,7 +360,7 @@ URL: {url}
 
 💡 수동으로 시도:
    1. 브라우저에서 직접 URL 확인
-   2. --playwriter 옵션으로 재시도
+   2. --playwright 옵션으로 재시도
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -387,7 +387,7 @@ Path: {path}
 Detection Result:
 ├─ Page Type: {static|dynamic}
 ├─ Matched Rule: {어떤 규칙에 매치됐는지}
-└─ Recommended Strategy: {jina|playwriter}
+└─ Recommended Strategy: {jina|playwright}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -411,12 +411,12 @@ Jina Reader만 사용합니다. 다른 전략으로 fallback하지 않습니다.
 - 정적 콘텐츠임을 확신할 때
 - 토큰 절약이 필요할 때
 
-### --playwriter
+### --playwright
 
-Playwriter MCP만 사용합니다.
+Playwright MCP만 사용합니다.
 
 ```
-/dtz:web-fetch https://spa-app.com --playwriter
+/dtz:web-fetch https://spa-app.com --playwright
 ```
 
 **사용 사례:**
@@ -433,7 +433,7 @@ Playwriter MCP만 사용합니다.
 ```
 
 **사용 사례:**
-- Playwriter MCP가 없을 때
+- Playwright MCP가 없을 때
 - 더 세밀한 제어가 필요할 때
 - 스크린샷 등 추가 기능 필요 시
 
@@ -441,7 +441,7 @@ Playwriter MCP만 사용합니다.
 
 ## Strategy Comparison
 
-| Feature | Jina Reader | Playwriter | Playwright |
+| Feature | Jina Reader | Playwright | Playwright |
 |---------|-------------|------------|------------|
 | 속도 | ⚡ 매우 빠름 | 🔄 보통 | 🐢 느림 |
 | 동적 콘텐츠 | ❌ 불가 | ✅ 가능 | ✅ 가능 |
@@ -469,10 +469,10 @@ Playwriter MCP만 사용합니다.
 ### 예시 2: SPA 대시보드 데이터
 
 ```
-/dtz:web-fetch https://app.example.com/dashboard --playwriter
+/dtz:web-fetch https://app.example.com/dashboard --playwright
 ```
 
-→ Playwriter로 JavaScript 렌더링 후 데이터 추출
+→ Playwright로 JavaScript 렌더링 후 데이터 추출
 
 ### 예시 3: 문서 페이지
 
@@ -488,7 +488,7 @@ Playwriter MCP만 사용합니다.
 /dtz:web-fetch https://twitter.com/user/status/123
 ```
 
-→ 동적 페이지로 감지, Playwriter 자동 사용
+→ 동적 페이지로 감지, Playwright 자동 사용
 
 ---
 
@@ -521,10 +521,10 @@ Playwriter MCP만 사용합니다.
 ## Best Practices
 
 1. **기본값 사용**: 대부분의 경우 자동 전략 선택이 최적
-2. **SPA는 명시적으로**: SPA임을 알면 `--playwriter` 사용
+2. **SPA는 명시적으로**: SPA임을 알면 `--playwright` 사용
 3. **빠른 응답**: 정적 콘텐츠는 `--jina`로 속도 향상
 4. **rate limit 주의**: Jina Reader 과다 사용 시 일시 차단 가능
-5. **민감한 데이터**: 로그인 필요 페이지는 Playwriter 세션 활용
+5. **민감한 데이터**: 로그인 필요 페이지는 Playwright 세션 활용
 
 ---
 
@@ -566,8 +566,8 @@ grep -q "### Web Fetch Strategy" ~/.claude/CLAUDE.md 2>/dev/null && echo "ALREAD
   → URL: https://r.jina.ai/{encoded_url}
   → WebFetch 도구로 호출
   ↓ 실패 또는 동적 페이지
-2차: Playwriter (MCP)
-  → mcp__playwriter__execute 사용
+2차: Playwright (MCP)
+  → Playwright 플러그인 사용
   → JavaScript 렌더링 필요 시
   ↓ 실패 또는 미설치
 3차: Playwright (로컬 fallback)
@@ -576,7 +576,7 @@ grep -q "### Web Fetch Strategy" ~/.claude/CLAUDE.md 2>/dev/null && echo "ALREAD
 | Page Type | Domains/Patterns | Strategy |
 |-----------|------------------|----------|
 | Static | medium.com, dev.to, docs.*, wikipedia.org, /blog/, /article/, /docs/ | Jina Reader |
-| Dynamic | twitter.com, x.com, app.*, dashboard.*, /app/, /feed/ | Playwriter |
+| Dynamic | twitter.com, x.com, app.*, dashboard.*, /app/, /feed/ | Playwright |
 
 **적용 시점:**
 - URL에서 정보 요청 시 ("이 페이지 읽어줘", "URL 내용 가져와")
@@ -599,7 +599,7 @@ grep -q "### Web Fetch Strategy" ~/.claude/CLAUDE.md 2>/dev/null && echo "ALREAD
 ┌─────────────────────────────────────┐
 │ 1. Jina Reader (기본, 빠름)          │
 │    ↓ 실패 시                        │
-│ 2. Playwriter (동적 페이지)          │
+│ 2. Playwright (동적 페이지)          │
 │    ↓ 실패 시                        │
 │ 3. Playwright (fallback)            │
 └─────────────────────────────────────┘

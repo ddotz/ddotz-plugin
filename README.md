@@ -24,7 +24,7 @@ Opus 4.5 | ⎇ main v1.2.0 | ~/project
 
 ### /dtz:web-fetch - Smart Web Content Fetching
 
-Fetch web content with automatic strategy selection. Uses Jina Reader for static pages (fast, markdown) and Playwriter/Playwright for dynamic pages (JavaScript rendering).
+Fetch web content with automatic strategy selection. Uses Jina Reader for static pages (fast, markdown) and Playwright for dynamic pages (JavaScript rendering).
 
 > First run automatically adds Web Fetch Strategy to global `~/.claude/CLAUDE.md`.
 
@@ -32,7 +32,6 @@ Fetch web content with automatic strategy selection. Uses Jina Reader for static
 |---------|-------------|
 | `/dtz:web-fetch {url}` | Fetch content (auto strategy) |
 | `/dtz:web-fetch {url} --jina` | Force Jina Reader |
-| `/dtz:web-fetch {url} --playwriter` | Force Playwriter |
 | `/dtz:web-fetch {url} --playwright` | Force Playwright |
 | `/dtz:web-fetch detect {url}` | Detect page type (dry-run) |
 
@@ -40,9 +39,7 @@ Fetch web content with automatic strategy selection. Uses Jina Reader for static
 ```
 1. Jina Reader (static pages, fast, markdown output)
    ↓ failure or dynamic page
-2. Playwriter (MCP, JavaScript rendering)
-   ↓ failure or not installed
-3. Playwright (local browser automation)
+2. Playwright (plugin, JavaScript rendering)
 ```
 
 **Page Type Detection**:
@@ -114,7 +111,7 @@ Create `.dtz/config.json` in your project:
 - Add Web Fetch Strategy skill (`/dtz:web-fetch`)
 - Smart page type detection (static vs dynamic)
 - Jina Reader as default for static pages
-- Playwriter/Playwright fallback for dynamic pages
+- Playwright fallback for dynamic pages
 - Auto strategy selection with manual override options
 
 ### v2.4.2
