@@ -18,6 +18,7 @@ Claude Code의 statusline을 ddotz-hud로 설정합니다.
 |---------|-------------|
 | `/dtz:hud-setup` | HUD 설치 및 설정 (setup과 동일) |
 | `/dtz:hud-setup setup` | HUD 설치 및 설정 |
+| `/dtz:hud-setup auth` | 인증만 다시 설정 (자동 추출 + 수동 폴백) |
 | `/dtz:hud-setup update` | 최신 버전으로 업데이트 |
 | `/dtz:hud-setup status` | 현재 설정 상태 확인 |
 | `/dtz:hud-setup reset` | HUD 설정 제거 |
@@ -45,26 +46,64 @@ node -v && npm -v && git --version
 npm install && npm run build
 ```
 
-### 5. API 인증 정보 설정 (Rate Limits용)
-- 먼저 사용자에게 키 추출 방법을 안내합니다:
+### 5. API 인증 정보 설정 (자동 추출 → 수동 폴백)
+
+빌드 완료 후, ddotz-hud 자체의 인증 설정 CLI를 실행합니다. 이 CLI가 자동 추출과 수동 입력 가이드를 모두 책임지므로, 스킬에서는 별도의 TextInput을 띄우지 않고 사용자가 터미널에서 명령을 직접 실행하도록 안내합니다.
+
+**먼저 사용자에게 절차를 명확히 설명합니다:**
+
 ```text
-💡 Rate Limits 기능을 사용하려면 Claude AI 웹사이트에서 설정값을 가져와야 합니다.
-1. https://claude.ai 에 접속하여 로그인합니다.
-2. 개발자 도구(F12)를 열고 Application(응용 프로그램) 탭 -> 좌측 Cookies 메뉴로 이동합니다.
-3. `sessionKey` 항목의 Value (sk-ant-...) 를 복사합니다. 이게 Session Key입니다.
-4. 똑같이 로그인 된 상태에서 브라우저 주소창에 `https://claude.ai/api/organizations` 를 입력하고 엔터를 칩니다.
-5. 화면에 표시되는 텍스트(JSON) 중 `"uuid":"..."` 에 적힌 값(예: 3e85ef21-...)을 복사합니다. 이게 Organization ID 입니다.
+🔐 Rate Limits(5시간/주간 사용량) 표시를 위해 Claude.ai 인증이 필요합니다.
+
+이제 다음 명령을 실행하면 자동/수동 두 단계로 인증이 진행됩니다:
+
+  node ~/.claude/hud/ddotz-hud/dist/index.js setup
+  (Windows: node %USERPROFILE%\.claude\hud\ddotz-hud\dist\index.js setup)
+
+CLI가 처리하는 흐름:
+
+  ① 브라우저 쿠키 자동 추출
+     - Chrome / Brave / Edge / Arc / Firefox 가운데
+       claude.ai 에 로그인된 세션을 자동 검색합니다.
+     - macOS Chrome 계열은 키체인에서 "Chrome Safe Storage"
+       비밀번호를 받아 sessionKey 를 복호화합니다.
+       (이때 macOS 가 1회 keychain 접근 권한을 요청할 수 있습니다.
+        "허용" 또는 "항상 허용" 을 선택하세요.)
+     - 자동 추출에 성공하면 claude.ai/api/organizations 를
+       호출해 Organization ID 도 자동 조회합니다.
+
+  ② 자동 추출 실패 시 수동 입력 (단계별 가이드 출력)
+     STEP 1) https://claude.ai 에서 로그인 상태인지 확인
+     STEP 2) F12 → Application → Cookies → https://claude.ai
+             → sessionKey 행의 Value (sk-ant-...) 복사 → 붙여넣기
+             ※ document.cookie 헤더 통째로 붙여넣어도 자동 추출됩니다.
+     STEP 3) Organization ID — 입력한 sessionKey 로 자동 조회를
+             다시 시도합니다. 그래도 실패하면 주소창에
+             https://claude.ai/api/organizations 입력 후 엔터,
+             표시된 JSON 의 "uuid":"..." 값을 복사 → 붙여넣기.
+             ※ JSON 전체를 통째로 붙여넣어도 자동 추출됩니다.
+
+  ③ /api/organizations/{orgId}/usage 호출로 즉시 검증
+  ④ ~/.claude/ddotz-hud-config.json 에 0600 권한으로 저장
 ```
-- AskUserQuestion: "API Rate Limits(5시간/주간 사용량) 표시를 위해 Session Key와 Organization ID를 설정하시겠습니까?"
-  - Options: "네", "아니오 (skip)"
-  - "네" 선택 시:
-    - TextInput: "Claude Session Key (sk-ant-...):"
-    - TextInput: "Organization ID (UUID):"
-    - 입력받은 값을 JSON 형식으로 `~/.claude/ddotz-hud-config.json` 에 쓰기
+
+**그런 다음 사용자에게 묻습니다:**
+
+- AskUserQuestion: "지금 인증 설정을 진행하시겠습니까? (자동 추출 + 수동 폴백을 한 번에 처리합니다.)"
+  - Options: "네 (지금 실행)", "건너뛰기 (나중에 직접 실행)"
+  - "네" 선택 시: 위 명령을 Bash 도구로 실행합니다.
+    ```bash
+    node "$HOME/.claude/hud/ddotz-hud/dist/index.js" setup
+    ```
+    (CLI 자체가 readline 기반 인터랙티브 입력을 받으므로 Claude Code 가
+    터미널 입력을 그대로 전달해야 합니다.)
+  - "건너뛰기" 선택 시: 다음 단계로 진행하고, 완료 메시지에서 재실행 방법을 안내합니다.
+
+**저장 형식 (CLI 가 자동 작성):**
 ```json
 {
-  "sessionKey": "{입력한_세션키}",
-  "orgId": "{입력한_조직ID}"
+  "sessionKey": "sk-ant-...",
+  "orgId": "00000000-0000-0000-0000-000000000000"
 }
 ```
 
@@ -92,9 +131,35 @@ npm install && npm run build
 
 설치 위치: {HUD_경로}
 설정 파일: {SETTINGS_경로}
-(선택 사항인 API 키가 입력된 경우 `ddotz-hud-config.json`에 저장됨)
+인증 파일: ~/.claude/ddotz-hud-config.json (선택)
+
+🔁 인증을 나중에 (재)설정하려면:
+   node {HUD_경로}/dist/index.js setup
+   (강제 재설정: ... setup --force / 자동 추출 건너뛰기: ... setup --manual)
+
+📊 현재 인증 상태 확인:
+   node {HUD_경로}/dist/index.js status
 
 ⚠️ Claude Code를 재시작하면 새 statusline이 적용됩니다.
+```
+
+## Auth Procedure
+
+`/dtz:hud-setup auth` 실행 시 (HUD 가 이미 설치된 상태에서 인증만 다시 설정):
+
+### 1. 설치 확인
+- `ddotz-hud/dist/index.js` 존재 여부 확인
+- 없으면: "HUD가 설치되지 않았습니다. `/dtz:hud-setup setup`을 먼저 실행하세요."
+
+### 2. 인증 CLI 호출
+- Bash 도구로 실행:
+```bash
+node "$HOME/.claude/hud/ddotz-hud/dist/index.js" setup --force
+```
+- CLI 가 자동 추출(브라우저 쿠키) → 수동 폴백(단계별 가이드) → API 검증 → 저장 순으로 처리합니다.
+- 사용자가 자동 추출을 건너뛰고 싶다면 `--manual` 플래그도 안내:
+```bash
+node "$HOME/.claude/hud/ddotz-hud/dist/index.js" setup --manual
 ```
 
 ## Update Procedure
@@ -189,4 +254,4 @@ Opus 4.5 | ⎇ main v1.2.0 | ~/project
 **Line 2**: 프로필 | Rate Limit | Context % | 비용 | 시간 | 에이전트 | 백그라운드
 
 ---
-*DTZ HUD Skill v1.1.0*
+*DTZ HUD Skill v1.2.0*
